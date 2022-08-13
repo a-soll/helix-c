@@ -4,10 +4,10 @@
 //
 //  Created by Adam Solloway on 3/8/22.
 //
+// #include "include/channel.h"
 #include "channel.h"
 #include "string.h"
 #include "util.h"
-#include <json-c/json.h>
 #include <string.h>
 
 void pop_name(Channel *chan, const char *user_name) {

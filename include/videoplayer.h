@@ -8,7 +8,7 @@
 #ifndef videoplayer_h
 #define videoplayer_h
 
-#include <json-c/json.h>
+#include "util.h"
 #include "channel.h"
 #include "client.h"
 

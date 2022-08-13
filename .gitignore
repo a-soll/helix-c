@@ -1,0 +1,5 @@
+helix.a
+helix
+test.c
+build/
+.vscode/*.log

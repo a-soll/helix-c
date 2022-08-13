@@ -1,0 +1,19 @@
+{
+    "configurations": [
+        {
+            "name": "Mac",
+            "includePath": [
+                "${default}",
+                "${workspaceRoot}/lib",
+                "${workspaceRoot}/include"
+            ],
+            "browse": {
+                "path": [
+                    "${workspaceRoot}/include",
+                    "${workspaceRoot}/lib"
+            ]
+        }
+        }
+    ],
+    "version": 4
+}

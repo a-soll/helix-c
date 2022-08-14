@@ -8,8 +8,8 @@
 #include <curl/curl.h>
 #include <stdarg.h>
 
-const char *get_key(struct json_object *from, const char *key) {
-    struct json_object *val;
+const char *get_key(json_object *from, const char *key) {
+    json_object *val;
 
     json_object_object_get_ex(from, key, &val);
 
@@ -72,6 +72,6 @@ char *concat(char *dst, char *src, char term, size_t size) {
     return tmp;
 }
 
-void print_json(struct json_object *json) {
+void print_json(json_object *json) {
     printf("json: %s\n", json_object_to_json_string_ext(json, JSON_C_TO_STRING_PRETTY));
 }

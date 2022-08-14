@@ -8,9 +8,9 @@
 #ifndef channel_h
 #define channel_h
 
-#include <stdio.h>
 #include "client.h"
 #include <stdbool.h>
+#include <stdio.h>
 
 #define USER_NAME_MAX 25
 
@@ -40,7 +40,7 @@ void pp(Channel channel);
 void get_channel_stream(Client *client, Channel *channel);
 void get_profile_url(Client *client, Channel *channel);
 int get_followed_channels(Client *client, Channel **follows, int count);
-void channel_init_from_json(Channel *channel, struct json_object *json);
+void channel_init_from_json(Channel *channel, json_object *json);
 void pop_login(Channel *chan, const char *login);
 
 #endif /* c_file_h */

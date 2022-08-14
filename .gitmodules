@@ -1,3 +1,6 @@
 [submodule "lib/json-c"]
 	path = lib/json-c
 	url = https://github.com/json-c/json-c.git
+[submodule "lib/c-hashmap"]
+	path = lib/c-hashmap
+	url = https://github.com/a-soll/c-hashmap.git

@@ -2,13 +2,13 @@
 
 // example box art url: https://static-cdn.jtvnw.net/ttv-boxart/1678360288_IGDB-{width}x{height}.jpg
 // placeholder https://static-cdn.jtvnw.net/ttv-static/404_boxart.jpg
-void init_game(Game *game, struct json_obect *json) {
-    char *name = get_key(json, "name");
-    char *id = get_key(json, "id");
+void init_game(Game *game, json_object *json) {
+    const char *name = get_key(json, "name");
+    const char *id = get_key(json, "id");
     strcpy(game->name, name);
     strcpy(game->id, id);
     const char *box_url = get_key(json, "box_art_url");
-    replace_substr(game->box_art_url, box_url, "{width}x{height}", "188x251");
+    replace_substr(game->box_art_url, (char *)box_url, "{width}x{height}", "188x251");
 }
 
 int get_top_games(Client *client, Game **games, Paginator *iterator, int items) {
@@ -36,7 +36,7 @@ int get_top_games(Client *client, Game **games, Paginator *iterator, int items) 
     ret = response.data_len;
     for (int i = 0; i < response.data_len; i++) {
         Game game;
-        struct json_object *data_array_object;
+        json_object *data_array_object;
         data_array_object = json_object_array_get_idx(response.data, i);
         init_game(&game, data_array_object);
         g[game_index] = game;
@@ -72,7 +72,7 @@ int get_game_streams(Client *client, Game *game, Channel **channels, Paginator *
     int ret = response.data_len;
     for (int i = 0; i < response.data_len; i++) {
         Channel chan;
-        struct json_object *data_array_object;
+        json_object *data_array_object;
         data_array_object = json_object_array_get_idx(response.data, i);
         channel_init_from_json(&chan, data_array_object);
         c[chan_index] = chan;

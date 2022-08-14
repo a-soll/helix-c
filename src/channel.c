@@ -41,9 +41,9 @@ void get_channel_stream(Client *client, Channel *channel) {
     Response response = curl_request(client, url, curl_GET);
     get_json_array(&response, "data");
     for (int i = 0; i < response.data_len; i++) {
-        struct json_object *data_array_object;
+        json_object *data_array_object;
         data_array_object = json_object_array_get_idx(response.data, i);
-        char *viewer_count = get_key(data_array_object, "viewer_count");
+        char *viewer_count = (char *)get_key(data_array_object, "viewer_count");
         int len = strlen(viewer_count);
         if (len > 3) {
             abbreviate_number(viewer_count, channel->viewer_count);
@@ -57,7 +57,7 @@ void get_channel_stream(Client *client, Channel *channel) {
 }
 
 void get_profile_url(Client *client, Channel *channel) {
-    struct json_object *data_array_object;
+    json_object *data_array_object;
     char url[2048];
     char *base_url = "https://api.twitch.tv/helix/users?id=";
     int len = fmt_string(url, "%s%s", base_url, channel->user_id);
@@ -83,7 +83,7 @@ int get_followed_channels(Client *client, Channel **follows, int count) {
     for (int i = 0; i < response.data_len; i++) {
         Channel chan;
         Channel_init(&chan);
-        struct json_object *data_array_object = json_object_array_get_idx(response.data, i);
+        json_object *data_array_object = json_object_array_get_idx(response.data, i);
         memcpy(chan.id, get_key(data_array_object, "id"), sizeof(chan.id));
         memcpy(chan.user_id, get_key(data_array_object, "user_id"), sizeof(chan.user_id));
         memcpy(chan.user_name, get_key(data_array_object, "user_name"), sizeof(chan.user_name));
@@ -96,7 +96,7 @@ int get_followed_channels(Client *client, Channel **follows, int count) {
     return response.data_len;
 }
 
-void channel_init_from_json(Channel *channel, struct json_object *json) {
+void channel_init_from_json(Channel *channel, json_object *json) {
     memccpy(channel->id, get_key(json, "id"), '\0', sizeof(channel->id));
     memccpy(channel->user_id, get_key(json, "user_id"), '\0', sizeof(channel->user_id));
     memccpy(channel->user_login, get_key(json, "user_login"), '\0', sizeof(channel->user_login));
@@ -107,5 +107,5 @@ void channel_init_from_json(Channel *channel, struct json_object *json) {
     memccpy(channel->viewer_count, get_key(json, "viewer_count"), '\0', sizeof(channel->viewer_count));
     memccpy(channel->started_at, get_key(json, "started_at"), '\0', sizeof(channel->started_at));
     memccpy(channel->broadcaster_language, get_key(json, "language"), '\0', sizeof(channel->broadcaster_language));
-    replace_substr(channel->thumbnail_url, get_key(json, "thumbnail_url"), "{width}x{height}", "344x194");
+    replace_substr(channel->thumbnail_url, (char *)get_key(json, "thumbnail_url"), "{width}x{height}", "344x194");
 }

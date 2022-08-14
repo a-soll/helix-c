@@ -21,9 +21,9 @@ typedef enum CurlMethod {
 } CurlMethod;
 
 typedef struct Response {
-    struct json_object *response;
-    struct json_object *data;
-    struct json_object *data_array_obj;
+    json_object *response;
+    json_object *data;
+    json_object *data_array_obj;
     CURLcode res;
     int data_len;
     char *memory;
@@ -39,7 +39,7 @@ typedef struct Client {
     const char *client_id;
     const char *client_secret;
     const char *token;
-    struct json_object *fields;
+    json_object *fields;
     struct curl_slist *headers;
     CURL *curl_handle;
     char post_data[999];
@@ -62,7 +62,7 @@ void clear_headers(Client *client);
 void clean_response(void *response);
 void refresh_token(Client *client);
 void get_json_array(Response *response, const char *key);
-void set_pagination(char *pagination, struct json_object *json);
+void set_pagination(char *pagination, json_object *json);
 Paginator init_paginator();
 
 #endif /* client_h */

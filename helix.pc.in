@@ -7,5 +7,5 @@ Name: @PROJECT_NAME@
 Version: @PROJECT_VERSION@
 
 Requires:
-Libs: -L${libdir} -lhelix
+Libs: -L${libdir} -lhelix -ljson-c -lcurl
 Cflags: -I${includedir} -I${libdir}

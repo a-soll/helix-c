@@ -1,5 +1,6 @@
-cmake_minimum_required(VERSION 3.23)
+cmake_minimum_required(VERSION 3.0)
 set(CMAKE_C_COMPILER ${CMAKE_C_COMPILER})
+set(CMAKE_CXX_COMPILER ${CMAKE_CXX_COMPILER})
 project(helix VERSION 1.0)
 include(GNUInstallDirs)
 
@@ -21,13 +22,14 @@ set_target_properties(helix PROPERTIES VERSION ${PROJECT_VERSION})
 set_target_properties(helix PROPERTIES PUBLIC_HEADER helix.h)
 set_target_properties(helix PROPERTIES PRIVATE_HEADER "include/channel.h;include/client.h;include/game.h;include/hashmap.h;include/util.h;include/videoplayer.h")
 
-define_property(TARGET PROPERTY LIB_HEADER)
+define_property(TARGET PROPERTY LIB_HEADER BRIEF_DOCS "json-c include" FULL_DOCS "json-c include")
 
 set_property(TARGET PROPERTY LIB_HEADER "${CMAKE_SOURCE_DIR}/lib/json-c/json.h")
 
 set_target_properties(helix PROPERTIES LIBRARY json-c)
 
 include_directories("include" "lib")
+include_directories(${CMAKE_BINARY_DIR}/lib)
 target_include_directories(helix PRIVATE
     include
     lib
@@ -35,6 +37,4 @@ target_include_directories(helix PRIVATE
 
 install(TARGETS helix LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/helix PRIVATE_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/helix/include)
 
-install(FILES ${CMAKE_SOURCE_DIR}/lib/json-c/json.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/helix/lib/json-c)
-
-install(FILES ${CMAKE_BINARY_DIR}/helix.pc DESTINATION ${CMAKE_BINARY_DIR}/pkgconfig)
+install(FILES ${CMAKE_BINARY_DIR}/lib/json-c/json.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/helix/lib/json-c)

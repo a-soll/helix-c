@@ -1,13 +1,16 @@
 cmake_minimum_required(VERSION 3.0)
 set(CMAKE_C_COMPILER ${CMAKE_C_COMPILER})
 set(CMAKE_CXX_COMPILER ${CMAKE_CXX_COMPILER})
+
+option(BUILD_SHARED_LIBS "Build using shared libraries" ON)
+
 project(helix VERSION 1.0)
 include(GNUInstallDirs)
 
 add_subdirectory(lib/json-c)
 add_subdirectory(lib/c-hashmap)
 
-add_library(helix SHARED
+add_library(helix
     src/channel.c
     src/client.c
     src/game.c
@@ -37,6 +40,7 @@ target_include_directories(helix PRIVATE
 )
 
 install(TARGETS helix LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/helix PRIVATE_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/helix/include)
+
 
 install(FILES ${CMAKE_BINARY_DIR}/lib/json-c/json.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/helix/lib/json-c)
 install(FILES ${CMAKE_SOURCE_DIR}/lib/c-hashmap/bucket.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/helix/lib/c-hashmap)

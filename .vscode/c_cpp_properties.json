@@ -12,8 +12,8 @@
                     "${default}",
                     "${workspaceRoot}/include",
                     "${workspaceRoot}/lib"
-            ]
-        }
+                ]
+            }
         }
     ],
     "version": 4

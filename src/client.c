@@ -30,7 +30,6 @@ Client Client_init(const char *access_token, const char *user_id, const char *us
 }
 
 void Client_deinit(Client *c) {
-    json_object_put(c->fields);
     curl_slist_free_all(c->headers);
 }
 

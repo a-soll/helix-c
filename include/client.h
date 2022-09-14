@@ -49,18 +49,16 @@ typedef struct Paginator {
     char pagination[550];
 } Paginator;
 
-Client Client_init(const char *access_token, const char *user_id, const char *user_login);
+Client Client_init(const char *access_token, const char *client_id, const char *user_id, const char *user_login);
+// verify that the current token is valid and returns user data
 bool validate_token(Client *client);
 void Client_deinit(Client *c);
-Response curl_request(Client *client, const char *url, CurlMethod method);
-void Client_startup(void);
+Response *curl_request(Client *client, const char *url, CurlMethod method);
 void clean_up(void *client);
 size_t WriteMemoryCallback(void *contents, size_t size, size_t nmemb, void *userp);
-void refresh_token();
 void reset_headers(Client *client);
 void clear_headers(Client *client);
 void clean_response(void *response);
-void refresh_token(Client *client);
 void get_json_array(Response *response, const char *key);
 void set_pagination(char *pagination, json_object *json);
 Paginator init_paginator();

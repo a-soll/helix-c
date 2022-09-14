@@ -3,3 +3,5 @@ helix
 test.c
 build/
 .vscode/*.log
+*.dSYM
+*.out

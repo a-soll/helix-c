@@ -1,0 +1,5 @@
+{
+    "code-runner.executorMapByGlob": {
+        "test.c": "clang test.c -Iinclude -Lbuild/lib -ljson-c -lcurl src/*c && ./a.out"
+    }
+}

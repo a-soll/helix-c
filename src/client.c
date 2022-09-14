@@ -8,10 +8,10 @@
 #include "client.h"
 #include "videoplayer.h"
 
-Client Client_init(const char *access_token, const char *user_id, const char *user_login) {
+Client Client_init(const char *access_token, const char *client_id, const char *user_id, const char *user_login) {
     Client c;
     c.base_url = "https://api.twitch.tv/helix";
-    c.client_id = "gp762nuuoqcoxypju8c569th9wz7q5";
+    c.client_id = client_id;
     c.token = access_token;
     c.user_id = user_id;
     c.user_login = user_login;
@@ -36,23 +36,23 @@ void Client_deinit(Client *c) {
 bool validate_token(Client *client) {
     bool ret = false;
     const char *url = "https://id.twitch.tv/oauth2/validate";
-    Response response = curl_request(client, url, curl_GET);
-    if (response.response_code == 200) {
-        client->user_login = get_key(response.response, "login");
-        client->user_id = get_key(response.response, "user_id");
+    Response *response = curl_request(client, url, curl_GET);
+    if (response->response_code == 200) {
+        client->user_login = get_key(response->response, "login");
+        client->user_id = get_key(response->response, "user_id");
         ret = true;
     }
-    clean_response(&response);
+    clean_response(response);
     return ret;
 }
 
-Response curl_request(Client *client, const char *url, CurlMethod method) {
-    Response response;
-    response.memory = malloc(1);
-    response.size = 0;
+Response *curl_request(Client *client, const char *url, CurlMethod method) {
+    Response *response = malloc(sizeof(Response));
+    response->memory = malloc(1);
+    response->size = 0;
     client->curl_handle = curl_easy_init();
-    response.error[0] = 0;
-    response.data_len = 0;
+    response->error[0] = 0;
+    response->data_len = 0;
 
     switch (method) {
     case curl_GET:
@@ -63,11 +63,11 @@ Response curl_request(Client *client, const char *url, CurlMethod method) {
         curl_easy_setopt(client->curl_handle, CURLOPT_POSTFIELDS, client->post_data);
         break;
     case curl_DELETE:
-        curl_easy_setopt(client->curl_handle, CURLOPT_CUSTOMREQUEST, "POST");
+        curl_easy_setopt(client->curl_handle, CURLOPT_CUSTOMREQUEST, "DELETE");
         curl_easy_setopt(client->curl_handle, CURLOPT_POSTFIELDS, client->post_data);
         break;
     case curl_PATCH:
-        curl_easy_setopt(client->curl_handle, CURLOPT_CUSTOMREQUEST, "POST");
+        curl_easy_setopt(client->curl_handle, CURLOPT_CUSTOMREQUEST, "PATCH");
         curl_easy_setopt(client->curl_handle, CURLOPT_POSTFIELDS, client->post_data);
         break;
     default:
@@ -78,17 +78,17 @@ Response curl_request(Client *client, const char *url, CurlMethod method) {
     curl_easy_setopt(client->curl_handle, CURLOPT_SSL_VERIFYPEER, 0);
     curl_easy_setopt(client->curl_handle, CURLOPT_HTTPHEADER, client->headers);
     curl_easy_setopt(client->curl_handle, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
-    curl_easy_setopt(client->curl_handle, CURLOPT_WRITEDATA, (void *)&response);
-    curl_easy_setopt(client->curl_handle, CURLOPT_ERRORBUFFER, response.error);
+    curl_easy_setopt(client->curl_handle, CURLOPT_WRITEDATA, (void *)response);
+    curl_easy_setopt(client->curl_handle, CURLOPT_ERRORBUFFER, response->error);
     curl_easy_setopt(client->curl_handle, CURLOPT_NOSIGNAL, 1L);
 
     // curl_easy_setopt(client->curl_handle, CURLOPT_VERBOSE, client->curl_handle);
 
-    response.res = curl_easy_perform(client->curl_handle);
-    if (response.res == CURLE_OK) {
-        curl_easy_getinfo(client->curl_handle, CURLINFO_RESPONSE_CODE, &response.response_code);
+    response->res = curl_easy_perform(client->curl_handle);
+    if (response->res == CURLE_OK) {
+        curl_easy_getinfo(client->curl_handle, CURLINFO_RESPONSE_CODE, &response->response_code);
     }
-    response.response = json_tokener_parse(response.memory);
+    response->response = json_tokener_parse(response->memory);
     curl_easy_cleanup(client->curl_handle);
     return response;
 }
@@ -97,6 +97,7 @@ void clean_response(void *response) {
     struct Response *res = (struct Response *)response;
     json_object_put(res->response);
     free(res->memory);
+    free(res);
 }
 
 void clean_up(void *client) {

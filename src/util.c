@@ -7,27 +7,34 @@
 #include "util.h"
 #include <curl/curl.h>
 #include <stdarg.h>
+#include <stdbool.h>
 
 const char *get_key(json_object *from, const char *key) {
     json_object *val;
 
-    json_object_object_get_ex(from, key, &val);
-
-    return json_object_get_string(val);
+    bool ret = json_object_object_get_ex(from, key, &val);
+    if (ret) {
+        return json_object_get_string(val);
+    } else {
+        return NULL;
+    }
 }
 
 int replace_substr(char *dst, char *from, char *repl, char *with) {
+    int new_len = 0;
     char *p = strstr(from, repl);
-    int repl_index_in_from = p - from;
-    int from_len = strlen(p) + repl_index_in_from;
-    int repl_len = strlen(repl);
-    int with_len = strlen(with);
-    int new_len = (from_len - repl_len) + with_len;
+    if (p != NULL) {
+        int repl_index_in_from = p - from;
+        int from_len = strlen(p) + repl_index_in_from;
+        int repl_len = strlen(repl);
+        int with_len = strlen(with);
+        new_len = (from_len - repl_len) + with_len;
 
-    memcpy(dst, from, repl_index_in_from);
-    memcpy(dst + repl_index_in_from, with, with_len);
-    strcpy(dst + repl_index_in_from + with_len, p + repl_len);
-    dst[new_len] = '\0';
+        memcpy(dst, from, repl_index_in_from);
+        memcpy(dst + repl_index_in_from, with, with_len);
+        strcpy(dst + repl_index_in_from + with_len, p + repl_len);
+        dst[new_len] = '\0';
+    }
     return new_len;
 }
 

@@ -10,4 +10,4 @@ typedef struct Game {
 } Game;
 
 int get_top_games(Client *client, Game **games, Paginator *iterator, int items);
-int get_game_streams(Client *client, Game *game, Channel **channels, Paginator *iterator, int items);
+int get_game_streams(Client *client, Stream **streams, Game *from, Paginator *iterator, int items);

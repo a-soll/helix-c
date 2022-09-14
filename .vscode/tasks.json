@@ -1,0 +1,29 @@
+{
+    "tasks": [
+        {
+            "type": "cppbuild",
+            "label": "Build",
+            "command": "clang",
+            "args": [
+                "-g",
+                "-o",
+                "a.out",
+                "test.c",
+                "-Iinclude",
+                "-Lbuild/lib",
+                "-ljson-c",
+                "-lcurl",
+                "src/*.c",
+            ],
+            "options": {
+                "cwd": "${workspaceRoot}"
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "detail": "run make debug"
+        }
+    ],
+    "version": "2.0.0"
+}

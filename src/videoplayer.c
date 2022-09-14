@@ -10,8 +10,8 @@
 
 // https://usher.ttvnw.net/${VOD or CHANNEL}/${user_id}.m3u8?client_id=${clientId}&token=${accessToken.value}&sig=${accessToken.signature}&allow_source=true&allow_audio_only=true
 // accessToken.value = json from request
-void get_stream_url(Client *client, Channel *channel, Video *player, bool is_vod) {
-    Response response;
+void get_stream_url(Client *client, Stream *stream, Video *player, bool is_vod) {
+    Response *response;
     clear_headers(client);
     const char *vod_or_channel = player->vod;
     char url[URL_LEN];
@@ -20,10 +20,10 @@ void get_stream_url(Client *client, Channel *channel, Video *player, bool is_vod
         vod_or_channel = player->channel;
     }
 
-    int len = fmt_string(url, "https://usher.ttvnw.net/%s/%s.m3u8?client_id=%s&token=%s&sig=%s&allow_source=true&allow_audio_only=true", vod_or_channel, channel->user_login, "kimne78kx3ncx6brgo4mv6wki5h1ko", player->token.encoded_value, player->token.signature);
+    int len = fmt_string(url, "https://usher.ttvnw.net/%s/%s.m3u8?client_id=%s&token=%s&sig=%s&allow_source=true&allow_audio_only=true", vod_or_channel, stream->user_login, "kimne78kx3ncx6brgo4mv6wki5h1ko", player->token.encoded_value, player->token.signature);
     response = curl_request(client, url, curl_GET);
-    parse_links(player, response.memory);
-    clean_response(&response);
+    parse_links(player, response->memory);
+    clean_response(response);
 }
 
 Video init_video_player() {
@@ -33,8 +33,8 @@ Video init_video_player() {
     return player;
 }
 
-void get_video_token(Client *client, Video *player, Channel *channel) {
-    Response response;
+void get_video_token(Client *client, Video *player, Stream *stream) {
+    Response *response;
     const char *url = "https://gql.twitch.tv/gql";
     struct curl_slist *headerlist = NULL;
     clear_headers(client);
@@ -56,17 +56,17 @@ void get_video_token(Client *client, Video *player, Channel *channel) {
         \"playerType\": \"embed\"\
     }\
     }\0",
-                         channel->user_name, channel->user_name);
+                         stream->user_name, stream->user_name);
 
     response = curl_request(client, url, curl_POST);
-    response.data = json_object_object_get(response.response, "data");
-    json_object *res = json_object_object_get(response.data, "streamPlaybackAccessToken");
+    response->data = json_object_object_get(response->response, "data");
+    json_object *res = json_object_object_get(response->data, "streamPlaybackAccessToken");
     player->token.value = get_key(res, "value");
     player->token.signature = get_key(res, "signature");
     if (player->token.value != NULL) {
         token_encode(&player->token);
     }
-    clean_response(&response);
+    clean_response(response);
 }
 
 // convert the token to an html string by replacing " with %22

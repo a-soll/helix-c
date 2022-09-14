@@ -3,3 +3,5 @@
 #include "include/game.h"
 #include "include/hashmap.h"
 #include "include/videoplayer.h"
+#include "include/stream.h"
+#include "include/user.h"

@@ -9,9 +9,9 @@
 #define channel_h
 
 #include "client.h"
-#include "user.h"
-#include "stream.h"
 #include "defs.h"
+#include "stream.h"
+#include "user.h"
 #include <stdbool.h>
 #include <stdio.h>
 
@@ -41,7 +41,7 @@ typedef struct SearchedChannel {
 
 void Channel_init(Channel *c);
 void Channel_deinit(Channel *c);
-void get_channel_stream(Client *client, Stream *stream, Channel *from);
+void get_channel_stream(Client *client, TwitchStream *stream, Channel *from);
 void get_channel_user(Client *client, User *user, Channel *from);
 int search_channels(Client *client, const char *keyword, SearchedChannel **channels, Paginator *iterator, int items);
 // internal functions

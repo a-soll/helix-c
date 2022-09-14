@@ -8,9 +8,9 @@
 #ifndef videoplayer_h
 #define videoplayer_h
 
-#include "util.h"
 #include "channel.h"
 #include "client.h"
+#include "util.h"
 
 typedef struct VideoToken {
     const char *value;
@@ -32,8 +32,8 @@ typedef struct Video {
     Resolution resolution_list[6];
 } Video;
 
-void get_stream_url(Client *client, Stream *stream, Video *player, bool is_vod);
-void get_video_token(Client *client, Video *player, Stream *stream);
+void get_stream_url(Client *client, TwitchStream *stream, Video *player, bool is_vod);
+void get_video_token(Client *client, Video *player, TwitchStream *stream);
 Video init_video_player();
 void token_encode(VideoToken *token);
 void parse_links(Video *video, char *data);

@@ -84,7 +84,7 @@ void Channel_deinit(Channel *c) {
     // free(c->title);
 }
 
-void get_channel_stream(Client *client, Stream *stream, Channel *from) {
+void get_channel_stream(Client *client, TwitchStream *stream, Channel *from) {
     get_stream_by_user_login(client, stream, from->broadcaster_login);
 }
 

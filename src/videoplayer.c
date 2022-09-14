@@ -10,7 +10,7 @@
 
 // https://usher.ttvnw.net/${VOD or CHANNEL}/${user_id}.m3u8?client_id=${clientId}&token=${accessToken.value}&sig=${accessToken.signature}&allow_source=true&allow_audio_only=true
 // accessToken.value = json from request
-void get_stream_url(Client *client, Stream *stream, Video *player, bool is_vod) {
+void get_stream_url(Client *client, TwitchStream *stream, Video *player, bool is_vod) {
     Response *response;
     clear_headers(client);
     const char *vod_or_channel = player->vod;
@@ -33,7 +33,7 @@ Video init_video_player() {
     return player;
 }
 
-void get_video_token(Client *client, Video *player, Stream *stream) {
+void get_video_token(Client *client, Video *player, TwitchStream *stream) {
     Response *response;
     const char *url = "https://gql.twitch.tv/gql";
     struct curl_slist *headerlist = NULL;

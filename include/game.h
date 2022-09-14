@@ -1,5 +1,5 @@
-#include "client.h"
 #include "channel.h"
+#include "client.h"
 #include "util.h"
 
 typedef struct Game {
@@ -10,4 +10,4 @@ typedef struct Game {
 } Game;
 
 int get_top_games(Client *client, Game **games, Paginator *iterator, int items);
-int get_game_streams(Client *client, Stream **streams, Game *from, Paginator *iterator, int items);
+int get_game_streams(Client *client, TwitchStream **streams, Game *from, Paginator *iterator, int items);

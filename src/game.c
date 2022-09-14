@@ -49,7 +49,7 @@ int get_top_games(Client *client, Game **games, Paginator *iterator, int items) 
     return ret;
 }
 
-int get_game_streams(Client *client, Stream **streams, Game *from, Paginator *iterator, int items) {
+int get_game_streams(Client *client, TwitchStream **streams, Game *from, Paginator *iterator, int items) {
     Channel *c;
     char *base_url = "https://api.twitch.tv/helix/streams?first=100";
     int base_len = strlen(base_url);

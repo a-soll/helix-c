@@ -4,19 +4,19 @@
 
 static char *base_url = "https://api.twitch.tv/helix/streams";
 
-int __populate_stream_array(Client *client, const char *url, Stream **streams, Paginator *iterator, int items) {
+int __populate_stream_array(Client *client, const char *url, TwitchStream **streams, Paginator *iterator, int items) {
     int chan_index = items;
     Response *response = curl_request(client, url, curl_GET);
-    Stream *s;
+    TwitchStream *s;
     get_json_array(response, "data");
     if (*streams == NULL) {
-        s = malloc(sizeof(Stream) * response->data_len);
+        s = malloc(sizeof(TwitchStream) * response->data_len);
     } else {
-        s = realloc(*streams, sizeof(Stream) * (items + response->data_len));
+        s = realloc(*streams, sizeof(TwitchStream) * (items + response->data_len));
     }
     int ret = response->data_len;
     for (int i = 0; i < response->data_len; i++) {
-        Stream str;
+        TwitchStream str;
         json_object *data_array_object;
         data_array_object = json_object_array_get_idx(response->data, i);
         __stream_init_from_json(&str, data_array_object);
@@ -31,7 +31,7 @@ int __populate_stream_array(Client *client, const char *url, Stream **streams, P
     return ret;
 }
 
-void __stream_init_from_json(Stream *stream, json_object *json) {
+void __stream_init_from_json(TwitchStream *stream, json_object *json) {
     memccpy(stream->game_id, get_key(json, "game_id"), '\0', sizeof(stream->game_id));
     memccpy(stream->game_name, get_key(json, "game_name"), '\0', sizeof(stream->game_name));
     memccpy(stream->id, get_key(json, "id"), '\0', sizeof(stream->id));
@@ -52,7 +52,7 @@ void __stream_init_from_json(Stream *stream, json_object *json) {
     replace_substr(stream->thumbnail_url, stream->thumbnail_url, "{width}x{height}", "344x194");
 }
 
-void get_stream_by_user_login(Client *client, Stream *stream, const char *user_login) {
+void get_stream_by_user_login(Client *client, TwitchStream *stream, const char *user_login) {
     char url[URL_LEN];
     int len = fmt_string(url, "%s?user_login=%s", base_url, user_login);
     url[len] = '\0';
@@ -67,16 +67,16 @@ void get_stream_by_user_login(Client *client, Stream *stream, const char *user_l
     clean_response(response);
 }
 
-int get_followed_streams(Client *client, Stream **follows, int count) {
+int get_followed_streams(Client *client, TwitchStream **follows, int count) {
     Response *response;
     char url[URL_LEN];
     fmt_string(url, "%s/streams/followed?user_id=42045317", client->base_url);
     response = curl_request(client, url, curl_GET);
     get_json_array(response, "data");
-    *follows = calloc(response->data_len, sizeof(Stream));
+    *follows = calloc(response->data_len, sizeof(TwitchStream));
 
     for (int i = 0; i < response->data_len; i++) {
-        Stream stream;
+        TwitchStream stream;
         json_object *data_array_object = json_object_array_get_idx(response->data, i);
         __stream_init_from_json(&stream, data_array_object);
         (*follows)[i] = stream;

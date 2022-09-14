@@ -16,6 +16,8 @@ add_library(helix
     src/game.c
     src/util.c
     src/videoplayer.c
+    src/user.c
+    src/stream.c
 )
 
 configure_file(helix.pc.in helix.pc @ONLY)
@@ -24,7 +26,7 @@ target_link_libraries(helix json-c curl c-hashmap)
 
 set_target_properties(helix PROPERTIES VERSION ${PROJECT_VERSION})
 set_target_properties(helix PROPERTIES PUBLIC_HEADER helix.h)
-set_target_properties(helix PROPERTIES PRIVATE_HEADER "include/channel.h;include/client.h;include/game.h;include/hashmap.h;include/util.h;include/videoplayer.h")
+set_target_properties(helix PROPERTIES PRIVATE_HEADER "include/channel.h;include/client.h;include/game.h;include/hashmap.h;include/util.h;include/videoplayer.h;include/stream.h;include/user.h")
 
 define_property(TARGET PROPERTY LIB_HEADER BRIEF_DOCS "json-c include" FULL_DOCS "json-c include")
 

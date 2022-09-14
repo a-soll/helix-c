@@ -9,6 +9,7 @@
 #define channel_h
 
 #include "client.h"
+#include "user.h"
 #include "stream.h"
 #include "defs.h"
 #include <stdbool.h>
@@ -40,8 +41,8 @@ typedef struct SearchedChannel {
 
 void Channel_init(Channel *c);
 void Channel_deinit(Channel *c);
-void print_id(Channel *channel);
 void get_channel_stream(Client *client, Stream *stream, Channel *from);
+void get_channel_user(Client *client, User *user, Channel *from);
 int search_channels(Client *client, const char *keyword, SearchedChannel **channels, Paginator *iterator, int items);
 // internal functions
 int __populate_searched_channel_array(Client *client, const char *url, SearchedChannel **channels, Paginator *iterator, int items);

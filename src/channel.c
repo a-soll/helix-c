@@ -88,6 +88,10 @@ void get_channel_stream(Client *client, Stream *stream, Channel *from) {
     get_stream_by_user_login(client, stream, from->broadcaster_login);
 }
 
+void get_channel_user(Client *client, User *user, Channel *from) {
+    get_user_by_login(client, user, from->broadcaster_login);
+}
+
 int search_channels(Client *client, const char *keyword, SearchedChannel **channels, Paginator *iterator, int items) {
     SearchedChannel *c;
     char *base_url = "https://api.twitch.tv/helix/search/channels?first=100";

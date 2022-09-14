@@ -26,3 +26,15 @@ void get_user_by_id(Client *client, User *user, const char *id) {
     }
     clean_response(response);
 }
+
+void get_user_by_login(Client *client, User *user, const char *login) {
+    char url[URL_LEN];
+    fmt_string(url, "%s?login=%s", base_url, login);
+    Response *response = curl_request(client, url, curl_GET);
+    get_json_array(response, "data");
+    if (response->data_len > 0) {
+        json_object *data_array_object = json_object_array_get_idx(response->data, 0);
+        __user_init_from_json(user, data_array_object);
+    }
+    clean_response(response);
+}

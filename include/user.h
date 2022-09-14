@@ -18,5 +18,6 @@ typedef struct User {
 } User;
 
 void get_user_by_id(Client *client, User *user, const char *id);
+void get_user_by_login(Client *client, User *user, const char *login);
 
 #endif /* USER_H */

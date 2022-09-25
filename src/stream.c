@@ -70,7 +70,8 @@ void get_stream_by_user_login(Client *client, TwitchStream *stream, const char *
 int get_followed_streams(Client *client, TwitchStream **follows, int count) {
     Response *response;
     char url[URL_LEN];
-    fmt_string(url, "%s/streams/followed?user_id=42045317", client->base_url);
+    fmt_string(url, "%s/streams/followed?user_id=%s", client->base_url, client->user_id);
+
     response = curl_request(client, url, curl_GET);
     get_json_array(response, "data");
     *follows = calloc(response->data_len, sizeof(TwitchStream));

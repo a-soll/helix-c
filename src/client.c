@@ -8,25 +8,23 @@
 #include "client.h"
 #include "videoplayer.h"
 
-Client Client_init(const char *access_token, const char *client_id, const char *user_id, const char *user_login) {
-    Client c;
-    c.base_url = "https://api.twitch.tv/helix";
-    c.client_id = client_id;
-    c.token = access_token;
-    c.user_id = user_id;
-    c.user_login = user_login;
-    c.headers = NULL;
-    c.curl_handle = NULL;
+void Client_init(Client *client, const char *access_token, const char *client_id, const char *user_id, const char *user_login) {
+    client->base_url = "https://api.twitch.tv/helix";
+    client->client_id = client_id;
+    client->token = access_token;
+    client->user_id = user_id;
+    client->user_login = user_login;
+    client->headers = NULL;
+    client->curl_handle = NULL;
 
     char header[URL_LEN];
-    c.headers = curl_slist_append(c.headers, "Content-Type: application/json");
-    c.headers = curl_slist_append(c.headers, "Accept: application/json");
-    fmt_string(header, "Authorization: Bearer %s", c.token);
-    c.headers = curl_slist_append(c.headers, header);
+    client->headers = curl_slist_append(client->headers, "Content-Type: application/json");
+    client->headers = curl_slist_append(client->headers, "Accept: application/json");
+    fmt_string(header, "Authorization: Bearer %s", client->token);
+    client->headers = curl_slist_append(client->headers, header);
 
-    fmt_string(header, "Client-Id: %s", c.client_id);
-    c.headers = curl_slist_append(c.headers, header);
-    return c;
+    fmt_string(header, "Client-Id: %s", client->client_id);
+    client->headers = curl_slist_append(client->headers, header);
 }
 
 void Client_deinit(Client *c) {

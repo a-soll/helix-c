@@ -49,7 +49,7 @@ typedef struct Paginator {
     char pagination[550];
 } Paginator;
 
-Client Client_init(const char *access_token, const char *client_id, const char *user_id, const char *user_login);
+void Client_init(Client *client, const char *access_token, const char *client_id, const char *user_id, const char *user_login);
 // verify that the current token is valid and returns user data
 bool validate_token(Client *client);
 void Client_deinit(Client *c);

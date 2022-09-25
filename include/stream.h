@@ -23,7 +23,7 @@ typedef struct TwitchStream {
 } TwitchStream;
 
 void get_stream_by_user_login(Client *client, TwitchStream *stream, const char *user_login);
-int get_followed_streams(Client *client, TwitchStream **followed, int count);
+int get_followed_streams(Client *client, TwitchStream **follows, int count);
 void __stream_init_from_json(TwitchStream *stream, json_object *json);
 int __populate_stream_array(Client *client, const char *url, TwitchStream **streams, Paginator *iterator, int items);
 

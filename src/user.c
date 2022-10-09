@@ -24,7 +24,7 @@ void get_user_by_id(Client *client, User *user, const char *id) {
         json_object *data_array_object = json_object_array_get_idx(response->data, 0);
         __user_init_from_json(user, data_array_object);
     }
-    clean_response(response);
+    response_clean(response);
 }
 
 void get_user_by_login(Client *client, User *user, const char *login) {
@@ -36,5 +36,5 @@ void get_user_by_login(Client *client, User *user, const char *login) {
         json_object *data_array_object = json_object_array_get_idx(response->data, 0);
         __user_init_from_json(user, data_array_object);
     }
-    clean_response(response);
+    response_clean(response);
 }

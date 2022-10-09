@@ -43,7 +43,7 @@ void Channel_init(Channel *c);
 void Channel_deinit(Channel *c);
 void get_channel_stream(Client *client, TwitchStream *stream, Channel *from);
 void get_channel_user(Client *client, User *user, Channel *from);
-int search_channels(Client *client, const char *keyword, SearchedChannel **channels, Paginator *iterator, int items);
+int search_channels(Client *client, const char *keyword, SearchedChannel **channels, Paginator *iterator, int items, bool live_only);
 // internal functions
 int __populate_searched_channel_array(Client *client, const char *url, SearchedChannel **channels, Paginator *iterator, int items);
 void __channel_init_from_json(Channel *channel, json_object *json);

@@ -43,9 +43,9 @@ int get_top_games(Client *client, Game **games, Paginator *iterator, int items) 
         g[game_index] = game;
         game_index++;
     }
-    set_pagination(iterator->pagination, response->response);
+    paginator_set(iterator->pagination, response->response);
     *games = g;
-    clean_response(response);
+    response_clean(response);
     return ret;
 }
 

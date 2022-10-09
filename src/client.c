@@ -40,7 +40,7 @@ bool validate_token(Client *client) {
         client->user_id = get_key(response->response, "user_id");
         ret = true;
     }
-    clean_response(response);
+    response_clean(response);
     return ret;
 }
 
@@ -91,14 +91,14 @@ Response *curl_request(Client *client, const char *url, CurlMethod method) {
     return response;
 }
 
-void clean_response(void *response) {
+void response_clean(void *response) {
     struct Response *res = (struct Response *)response;
     json_object_put(res->response);
     free(res->memory);
     free(res);
 }
 
-void clean_up(void *client) {
+void client_clean_up(void *client) {
     struct Client *mem = (struct Client *)client;
     if (mem->curl_handle != NULL) {
         curl_easy_cleanup(mem->curl_handle);
@@ -121,8 +121,8 @@ size_t WriteMemoryCallback(void *contents, size_t size, size_t nmemb, void *user
     return realsize;
 }
 
-void reset_headers(Client *client) {
-    clear_headers(client);
+void client_reset_headers(Client *client) {
+    client_clear_headers(client);
     char header[100];
 
     fmt_string(header, "Authorization: Bearer %s", client->token);
@@ -132,7 +132,7 @@ void reset_headers(Client *client) {
     client->headers = curl_slist_append(client->headers, header);
 }
 
-void clear_headers(Client *client) {
+void client_clear_headers(Client *client) {
     curl_slist_free_all(client->headers);
     client->headers = NULL;
 }
@@ -146,13 +146,20 @@ void get_json_array(Response *response, const char *key) {
     }
 }
 
-void set_pagination(char *pagination, json_object *json) {
+void paginator_set(char *pagination, json_object *json) {
     json_object *pagination_json;
     json_object_object_get_ex(json, "pagination", &pagination_json);
-    strcpy(pagination, get_key(pagination_json, "cursor"));
+    const char *cursor = get_key(pagination_json, "cursor");
+    if (cursor) {
+        strcpy(pagination, cursor);
+    }
 }
 
-Paginator init_paginator() {
+void paginator_clear(Paginator *paginator) {
+    paginator->pagination[0] = '\0';
+}
+
+Paginator paginator_init() {
     Paginator paginator;
     paginator.pagination[0] = '\0';
     return paginator;

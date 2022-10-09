@@ -24,10 +24,10 @@ int __populate_stream_array(Client *client, const char *url, TwitchStream **stre
         chan_index++;
     }
     if (response->data_len > 0) {
-        set_pagination(iterator->pagination, response->response);
+        paginator_set(iterator->pagination, response->response);
     }
     *streams = s;
-    clean_response(response);
+    response_clean(response);
     return ret;
 }
 
@@ -64,7 +64,7 @@ void get_stream_by_user_login(Client *client, TwitchStream *stream, const char *
         data_array_object = json_object_array_get_idx(response->data, 0);
         __stream_init_from_json(stream, data_array_object);
     }
-    clean_response(response);
+    response_clean(response);
 }
 
 int get_followed_streams(Client *client, TwitchStream **follows, int count) {
@@ -82,6 +82,6 @@ int get_followed_streams(Client *client, TwitchStream **follows, int count) {
         __stream_init_from_json(&stream, data_array_object);
         (*follows)[i] = stream;
     }
-    clean_response(response);
+    response_clean(response);
     return response->data_len;
 }

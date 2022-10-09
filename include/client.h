@@ -48,13 +48,14 @@ void Client_init(Client *client, const char *access_token, const char *client_id
 bool validate_token(Client *client);
 void Client_deinit(Client *c);
 Response *curl_request(Client *client, const char *url, CurlMethod method);
-void clean_up(void *client);
+void client_clean_up(void *client);
 size_t WriteMemoryCallback(void *contents, size_t size, size_t nmemb, void *userp);
-void reset_headers(Client *client);
-void clear_headers(Client *client);
-void clean_response(void *response);
+void client_reset_headers(Client *client);
+void client_clear_headers(Client *client);
+void response_clean(void *response);
 void get_json_array(Response *response, const char *key);
-void set_pagination(char *pagination, json_object *json);
-Paginator init_paginator();
+void paginator_set(char *pagination, json_object *json);
+void paginator_clear(Paginator *paginator);
+Paginator paginator_init();
 
 #endif /* client_h */

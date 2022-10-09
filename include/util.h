@@ -15,8 +15,6 @@ int abbreviate_number(char from[], char to[]);
 // void get_json_array(Response *response, const char *key);
 int fmt_string(char *to, const char *s, ...);
 char *concat(char *dst, char *src, char term, size_t size);
-// handles freeing curl items
-void clean_up(void *client);
 void print_json(json_object *json);
 int replace_substr(char *dst, char *from, char *repl, char *with);
 

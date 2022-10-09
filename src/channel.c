@@ -30,10 +30,10 @@ int __populate_channel_array(Client *client, const char *url, Channel **channels
         chan_index++;
     }
     if (response->data_len > 0) {
-        set_pagination(iterator->pagination, response->response);
+        paginator_set(iterator->pagination, response->response);
     }
     *channels = c;
-    clean_response(response);
+    response_clean(response);
     return ret;
 }
 
@@ -68,10 +68,10 @@ int __populate_searched_channel_array(Client *client, const char *url, SearchedC
         chan_index++;
     }
     if (response->data_len > 0) {
-        set_pagination(iterator->pagination, response->response);
+        paginator_set(iterator->pagination, response->response);
     }
     *channels = c;
-    clean_response(response);
+    response_clean(response);
     return ret;
 }
 

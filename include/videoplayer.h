@@ -1,10 +1,3 @@
-//
-//  videoplayer.h
-//  native_twitch
-//
-//  Created by Adam Solloway on 3/17/22.
-//
-
 #ifndef videoplayer_h
 #define videoplayer_h
 

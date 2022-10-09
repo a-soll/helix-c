@@ -149,7 +149,10 @@ void get_json_array(Response *response, const char *key) {
 void set_pagination(char *pagination, json_object *json) {
     json_object *pagination_json;
     json_object_object_get_ex(json, "pagination", &pagination_json);
-    strcpy(pagination, get_key(pagination_json, "cursor"));
+    const char *cursor = get_key(pagination_json, "cursor");
+    if (cursor) {
+        strcpy(pagination, cursor);
+    }
 }
 
 Paginator init_paginator() {

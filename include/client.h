@@ -1,9 +1,3 @@
-//
-//  client.h
-//  native_twitch
-//
-//  Created by Adam Solloway on 3/8/22.
-//
 #ifndef CLIENT_H
 #define CLIENT_H
 

@@ -92,18 +92,20 @@ void get_channel_user(Client *client, User *user, Channel *from) {
     get_user_by_login(client, user, from->broadcaster_login);
 }
 
-int search_channels(Client *client, const char *keyword, SearchedChannel **channels, Paginator *iterator, int items) {
+int search_channels(Client *client, const char *keyword, SearchedChannel **channels, Paginator *iterator, int items, bool live_only) {
     SearchedChannel *c;
-    char *base_url = "https://api.twitch.tv/helix/search/channels?first=100";
+    const char *live_flag;
+    live_flag = (live_only == true) ? "true" : "false";
+    char *base_url = "https://api.twitch.tv/helix/search/channels?first=100&live_only=";
     int base_len = strlen(base_url);
     char url[URL_LEN];
     int chan_index = items;
 
     if (iterator->pagination[0] == '\0') {
-        int len = fmt_string(url, "%s&query=%s", base_url, keyword);
+        int len = fmt_string(url, "%s%s&query=%s", base_url, live_flag, keyword);
         url[len] = '\0';
     } else {
-        int len = fmt_string(url, "%s&query=%s&after=%s", base_url, keyword, iterator->pagination);
+        int len = fmt_string(url, "%s%s&query=%s&after=%s", base_url, live_flag, keyword, iterator->pagination);
         url[len] = '\0';
     }
     int ret = __populate_searched_channel_array(client, url, channels, iterator, items);

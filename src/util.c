@@ -40,11 +40,16 @@ int replace_substr(char *dst, char *from, char *repl, char *with) {
 
 // abbreviate numbers in the thousands
 // ex: 40382 -> 40.3K
-int abbreviate_number(char *from, char *to) {
+int abbreviate_number(char from[], char to[]) {
     int i;
     char digit;
 
     int size = strlen(from);
+    if (size < 4) { // nothing to abbreviate if from isn't in the thousands
+        strcpy(to, from);
+        to[size] = '\0';
+        return i;
+    }
     from[size] = '\0';
     int delim = size - 3;
 

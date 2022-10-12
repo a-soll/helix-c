@@ -49,6 +49,8 @@ void __stream_init_from_json(TwitchStream *stream, json_object *json) {
     memccpy(stream->user_login, get_key(json, "user_login"), '\0', sizeof(stream->user_login));
     memccpy(stream->user_name, get_key(json, "user_name"), '\0', sizeof(stream->user_name));
     stream->viewer_count = atoi(get_key(json, "viewer_count"));
+    memccpy(stream->type, get_key(json, "type"), '\0', sizeof(stream->type));
+    // set thumbnail URL to default Twitch size
     replace_substr(stream->thumbnail_url, stream->thumbnail_url, "{width}x{height}", "344x194");
 }
 

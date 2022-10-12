@@ -46,6 +46,7 @@ void __searchedchannel_init_from_json(SearchedChannel *channel, json_object *jso
     memccpy(channel->started_at, get_key(json, "started_at"), '\0', sizeof(channel->started_at));
     memccpy(channel->thumbnail_url, get_key(json, "thumbnail_url"), '\0', sizeof(channel->thumbnail_url));
     memccpy(channel->title, get_key(json, "title"), '\0', sizeof(channel->title));
+    channel->is_live = strcmp("true", get_key(json, "is_live")) == 0 ? true : false;
 }
 
 int __populate_searched_channel_array(Client *client, const char *url, SearchedChannel **channels, Paginator *iterator, int items) {

@@ -56,8 +56,7 @@ void get_video_token(Client *client, Video *player, TwitchStream *stream) {
         \"playerType\": \"embed\"\
     }\
     }\0",
-                         stream->user_name, stream->user_name);
-
+                         stream->user_login, stream->user_login);
     response = curl_request(client, url, curl_POST);
     response->data = json_object_object_get(response->response, "data");
     json_object *res = json_object_object_get(response->data, "streamPlaybackAccessToken");

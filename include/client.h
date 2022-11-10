@@ -57,5 +57,6 @@ void get_json_array(Response *response, const char *key);
 void paginator_set(char *pagination, json_object *json);
 void paginator_clear(Paginator *paginator);
 Paginator paginator_init();
+void client_set_header(Client *client, const char *key, const char *value);
 
 #endif /* client_h */

@@ -132,6 +132,12 @@ void client_reset_headers(Client *client) {
     client->headers = curl_slist_append(client->headers, header);
 }
 
+void client_set_header(Client *client, const char *key, const char *value) {
+    char header[100];
+    fmt_string(header, "%s: %s", key, value);
+    client->headers = curl_slist_append(client->headers, header);
+}
+
 void client_clear_headers(Client *client) {
     curl_slist_free_all(client->headers);
     client->headers = NULL;

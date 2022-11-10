@@ -8,32 +8,30 @@
 #include "videoplayer.h"
 #include <string.h>
 
-// https://usher.ttvnw.net/${VOD or CHANNEL}/${user_id}.m3u8?client_id=${clientId}&token=${accessToken.value}&sig=${accessToken.signature}&allow_source=true&allow_audio_only=true
-// accessToken.value = json from request
-void get_stream_url(Client *client, TwitchStream *stream, Video *player, bool is_vod) {
-    Response *response;
-    client_clear_headers(client);
-    const char *vod_or_channel = player->vod;
-    char url[URL_LEN];
+// convert the token to an html string by replacing " with %22
+static void token_encode(VideoToken *token) {
+    size_t len = strlen(token->value) + 1;
+    int i = 0;
+    int j = 0;
 
-    if (!is_vod) {
-        vod_or_channel = player->channel;
+    while (i < len - 1) {
+        if (token->value[i] == '"') {
+            token->encoded_value[j] = '%';
+            j++;
+            token->encoded_value[j] = '2';
+            j++;
+            token->encoded_value[j] = '2';
+            j++;
+        } else {
+            token->encoded_value[j] = token->value[i];
+            j++;
+        }
+        i++;
     }
-
-    int len = fmt_string(url, "https://usher.ttvnw.net/%s/%s.m3u8?client_id=%s&token=%s&sig=%s&allow_source=true&allow_audio_only=true", vod_or_channel, stream->user_login, "kimne78kx3ncx6brgo4mv6wki5h1ko", player->token.encoded_value, player->token.signature);
-    response = curl_request(client, url, curl_GET);
-    parse_links(player, response->memory);
-    response_clean(response);
+    token->encoded_value[j] = '\0';
 }
 
-Video init_video_player() {
-    Video player;
-    player.vod = "vod";
-    player.channel = "api/channel/hls";
-    return player;
-}
-
-void get_video_token(Client *client, Video *player, TwitchStream *stream) {
+static void get_video_token(Client *client, Video *player, TwitchStream *stream) {
     Response *response;
     const char *url = "https://gql.twitch.tv/gql";
     struct curl_slist *headerlist = NULL;
@@ -68,33 +66,12 @@ void get_video_token(Client *client, Video *player, TwitchStream *stream) {
     response_clean(response);
 }
 
-// convert the token to an html string by replacing " with %22
-void token_encode(VideoToken *token) {
-    size_t len = strlen(token->value) + 1;
-    int i = 0;
-    int j = 0;
-
-    while (i < len - 1) {
-        if (token->value[i] == '"') {
-            token->encoded_value[j] = '%';
-            j++;
-            token->encoded_value[j] = '2';
-            j++;
-            token->encoded_value[j] = '2';
-            j++;
-        } else {
-            token->encoded_value[j] = token->value[i];
-            j++;
-        }
-        i++;
-    }
-    token->encoded_value[j] = '\0';
-}
-
-void parse_resolution_name(Resolution *resolution, char *string) {
-}
-
-void parse_video_token(char *buf, char *value, char start, char end) {
+/**
+ * parses the m3u8 output from the request
+ * pass the m3u8 string, the value to populate,
+ * and the chars to start search from and end on
+ */
+static void parse_video_token(char *buf, char *value, char start, char end) {
     int ind = 0;
     int val_ind = 0;
     while (buf[ind]) {
@@ -112,7 +89,7 @@ void parse_video_token(char *buf, char *value, char start, char end) {
     }
 }
 
-void parse_links(Video *video, char *data) {
+static void parse_links(Video *video, char *data) {
     const char *https = "https";
     const char *name = "NAME";
     const char *resolution = "RESOLUTION";
@@ -143,4 +120,59 @@ void parse_links(Video *video, char *data) {
         tmp = tmp + https_len;
         ind++;
     }
+}
+
+static void adblock_url(Client *client, Video *video, const char *user_login) {
+    char url[URL_LEN];
+    fmt_string(url, "https://api.ttv.lol/playlist/%s.m3u8%%3Fallow_source=true?fast_bread=true", user_login);
+    client_set_header(client, "X-Donate-To", "https://ttv.lol/donate");
+    Response *response = curl_request(client, url, curl_GET);
+    parse_links(video, response->memory);
+    response_clean(response);
+}
+
+static void non_adblock_url(Client *client, Response *response, TwitchStream *stream, Video *player, bool is_vod) {
+    get_video_token(client, player, stream);
+    const char *vod_or_channel = player->vod;
+    char url[URL_LEN];
+
+    if (!is_vod) {
+        vod_or_channel = player->channel;
+    }
+
+    int len = fmt_string(
+        url, "https://usher.ttvnw.net/%s/%s.m3u8?client_id=%s&token=%s&sig=%s&allow_source=true&allow_audio_only=true&fast_bread=true",
+        vod_or_channel, stream->user_login, "kimne78kx3ncx6brgo4mv6wki5h1ko", player->token.encoded_value,
+        player->token.signature);
+    response = curl_request(client, url, curl_GET);
+    parse_links(player, response->memory);
+}
+
+// https://usher.ttvnw.net/${VOD|CHANNEL}/${user_id}.m3u8?client_id=${clientId}&token=${accessToken.value}&sig=${accessToken.signature}&allow_source=true&allow_audio_only=true
+// accessToken.value = json from request
+void get_stream_url(Client *client, TwitchStream *stream, Video *player, bool is_vod, bool use_adblock) {
+    Response *response;
+    client_clear_headers(client);
+    bool adblock_available = true;
+
+    if (use_adblock) {
+        response = curl_request(client, "http://ttv.lol/api/ping", curl_GET);
+        if (response->res != CURLE_OK) {
+            adblock_available = false;
+        }
+        if (adblock_available) {
+            adblock_url(client, player, stream->user_login);
+        }
+    }
+    if (!use_adblock) {
+        non_adblock_url(client, response, stream, player, is_vod);
+    }
+    response_clean(response);
+}
+
+Video init_video_player() {
+    Video player;
+    player.vod = "vod";
+    player.channel = "api/channel/hls";
+    return player;
 }

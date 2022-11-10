@@ -25,10 +25,7 @@ typedef struct Video {
     Resolution resolution_list[6];
 } Video;
 
-void get_stream_url(Client *client, TwitchStream *stream, Video *player, bool is_vod);
-void get_video_token(Client *client, Video *player, TwitchStream *stream);
+void get_stream_url(Client *client, TwitchStream *stream, Video *player, bool is_vod, bool use_adblock);
 Video init_video_player();
-void token_encode(VideoToken *token);
-void parse_links(Video *video, char *data);
 
 #endif /* videoplayer_h */

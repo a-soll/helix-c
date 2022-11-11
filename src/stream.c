@@ -73,10 +73,10 @@ int get_followed_streams(Client *client, TwitchStream **follows, int count) {
     Response *response;
     char url[URL_LEN];
     fmt_string(url, "%s/streams/followed?user_id=%s", client->base_url, client->user_id);
-
     response = curl_request(client, url, curl_GET);
     get_json_array(response, "data");
     *follows = calloc(response->data_len, sizeof(TwitchStream));
+    int ret = response->data_len;
 
     for (int i = 0; i < response->data_len; i++) {
         TwitchStream stream;
@@ -85,5 +85,5 @@ int get_followed_streams(Client *client, TwitchStream **follows, int count) {
         (*follows)[i] = stream;
     }
     response_clean(response);
-    return response->data_len;
+    return ret;
 }

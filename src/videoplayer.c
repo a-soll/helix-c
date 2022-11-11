@@ -78,6 +78,9 @@ static void parse_video_token(char *buf, char *value, char start, char end) {
         if (buf[ind] == start) {
             ind++;
             while (buf[ind] != end) {
+                if (buf[ind] == '\0') {
+                    break;
+                }
                 value[val_ind] = buf[ind];
                 ind++;
                 val_ind++;
@@ -131,8 +134,9 @@ static void adblock_url(Client *client, Video *video, const char *user_login) {
     response_clean(response);
 }
 
-static void non_adblock_url(Client *client, Response *response, TwitchStream *stream, Video *player, bool is_vod) {
+static void non_adblock_url(Client *client, TwitchStream *stream, Video *player, bool is_vod) {
     get_video_token(client, player, stream);
+    Response *response;
     const char *vod_or_channel = player->vod;
     char url[URL_LEN];
 
@@ -140,12 +144,14 @@ static void non_adblock_url(Client *client, Response *response, TwitchStream *st
         vod_or_channel = player->channel;
     }
 
-    int len = fmt_string(
-        url, "https://usher.ttvnw.net/%s/%s.m3u8?client_id=%s&token=%s&sig=%s&allow_source=true&allow_audio_only=true&fast_bread=true",
-        vod_or_channel, stream->user_login, "kimne78kx3ncx6brgo4mv6wki5h1ko", player->token.encoded_value,
-        player->token.signature);
+    int len = fmt_string(url,
+                         "https://usher.ttvnw.net/%s/"
+                         "%s.m3u8?client_id=%s&token=%s&sig=%s&allow_source=true&allow_audio_only=true&fast_bread=true",
+                         vod_or_channel, stream->user_login, "kimne78kx3ncx6brgo4mv6wki5h1ko",
+                         player->token.encoded_value, player->token.signature);
     response = curl_request(client, url, curl_GET);
     parse_links(player, response->memory);
+    response_clean(response);
 }
 
 // https://usher.ttvnw.net/${VOD|CHANNEL}/${user_id}.m3u8?client_id=${clientId}&token=${accessToken.value}&sig=${accessToken.signature}&allow_source=true&allow_audio_only=true
@@ -160,14 +166,14 @@ void get_stream_url(Client *client, TwitchStream *stream, Video *player, bool is
         if (response->res != CURLE_OK) {
             adblock_available = false;
         }
+        response_clean(response);
         if (adblock_available) {
             adblock_url(client, player, stream->user_login);
         }
     }
     if (!use_adblock) {
-        non_adblock_url(client, response, stream, player, is_vod);
+        non_adblock_url(client, stream, player, is_vod);
     }
-    response_clean(response);
 }
 
 Video init_video_player() {

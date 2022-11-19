@@ -17,7 +17,7 @@ void __user_init_from_json(User *user, json_object *json) {
 
 void get_user_by_id(Client *client, User *user, const char *id) {
     char url[URL_LEN];
-    fmt_string(url, "%s?id=%s", base_url, id);
+    fmt_string(url, URL_LEN, "%s?id=%s", base_url, id);
     Response *response = curl_request(client, url, curl_GET);
     get_json_array(response, "data");
     if (response->data_len > 0) {
@@ -29,7 +29,7 @@ void get_user_by_id(Client *client, User *user, const char *id) {
 
 void get_user_by_login(Client *client, User *user, const char *login) {
     char url[URL_LEN];
-    fmt_string(url, "%s?login=%s", base_url, login);
+    fmt_string(url, URL_LEN, "%s?login=%s", base_url, login);
     Response *response = curl_request(client, url, curl_GET);
     get_json_array(response, "data");
     if (response->data_len > 0) {

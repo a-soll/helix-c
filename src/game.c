@@ -24,7 +24,7 @@ int get_top_games(Client *client, Game **games, Paginator *iterator, int items) 
         memccpy(url, base_url, '\0', strlen(base_url));
         url[base_len] = '\0';
     } else {
-        int len = fmt_string(url, "%s&after=%s", base_url, iterator->pagination);
+        int len = fmt_string(url, URL_LEN, "%s&after=%s", base_url, iterator->pagination);
         url[len] = '\0';
     }
     Response *response = curl_request(client, url, curl_GET);
@@ -56,10 +56,10 @@ int get_game_streams(Client *client, TwitchStream **streams, Game *from, Paginat
     char url[URL_LEN];
 
     if (iterator->pagination[0] == '\0') {
-        int len = fmt_string(url, "%s&game_id=%s", base_url, from->id);
+        int len = fmt_string(url, URL_LEN, "%s&game_id=%s", base_url, from->id);
         url[len] = '\0';
     } else {
-        int len = fmt_string(url, "%s&after=%s&game_id=%s", base_url, iterator->pagination, from->id);
+        int len = fmt_string(url, URL_LEN, "%s&after=%s&game_id=%s", base_url, iterator->pagination, from->id);
         url[len] = '\0';
     }
     int ret = __populate_stream_array(client, url, streams, iterator, items);

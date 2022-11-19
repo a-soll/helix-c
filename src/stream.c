@@ -56,7 +56,7 @@ void __stream_init_from_json(TwitchStream *stream, json_object *json) {
 
 void get_stream_by_user_login(Client *client, TwitchStream *stream, const char *user_login) {
     char url[URL_LEN];
-    int len = fmt_string(url, "%s?user_login=%s", base_url, user_login);
+    int len = fmt_string(url, URL_LEN, "%s?user_login=%s", base_url, user_login);
     url[len] = '\0';
     Response *response = curl_request(client, url, curl_GET);
     get_json_array(response, "data");
@@ -72,7 +72,7 @@ void get_stream_by_user_login(Client *client, TwitchStream *stream, const char *
 int get_followed_streams(Client *client, TwitchStream **follows, int count) {
     Response *response;
     char url[URL_LEN];
-    fmt_string(url, "%s/streams/followed?user_id=%s", client->base_url, client->user_id);
+    fmt_string(url, URL_LEN, "%s/streams/followed?user_id=%s", client->base_url, client->user_id);
     response = curl_request(client, url, curl_GET);
     get_json_array(response, "data");
     *follows = calloc(response->data_len, sizeof(TwitchStream));

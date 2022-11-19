@@ -31,14 +31,15 @@ static void token_encode(VideoToken *token) {
     token->encoded_value[j] = '\0';
 }
 
-static void get_video_token(Client *client, Video *player, TwitchStream *stream) {
+static bool get_video_token(Client *client, Video *player, TwitchStream *stream) {
+    bool got_token = false;
     Response *response;
     const char *url = "https://gql.twitch.tv/gql";
     struct curl_slist *headerlist = NULL;
     client_clear_headers(client);
     client->headers = curl_slist_append(client->headers, "Client-ID: kimne78kx3ncx6brgo4mv6wki5h1ko");
 
-    int len = fmt_string(client->post_data, "{\
+    int len = fmt_string(client->post_data, URL_LEN, "{\
     \"operationName\": \"PlaybackAccessToken\",\
     \"extensions\": {\
         \"persistedQuery\": {\
@@ -53,17 +54,32 @@ static void get_video_token(Client *client, Video *player, TwitchStream *stream)
         \"vodID\": \"%s\",\
         \"playerType\": \"embed\"\
     }\
-    }\0",
+    }",
                          stream->user_login, stream->user_login);
     response = curl_request(client, url, curl_POST);
     response->data = json_object_object_get(response->response, "data");
     json_object *res = json_object_object_get(response->data, "streamPlaybackAccessToken");
-    player->token.value = get_key(res, "value");
-    player->token.signature = get_key(res, "signature");
-    if (player->token.value != NULL) {
-        token_encode(&player->token);
+
+    /**
+     * if the stream is offline (or other general issue),
+     * streamPlaybackAccessToken will be NULL
+     */
+    if (res) {
+        got_token = true;
+        const char *val = get_key(res, "value");
+        const char *sig = get_key(res, "signature");
+        size_t val_len = strlen(val);
+        size_t sig_len = strlen(sig);
+        strncpy(player->token.signature, sig, sig_len);
+        strncpy(player->token.value, val, val_len);
+        player->token.signature[sig_len] = '\0';
+        player->token.value[val_len] = '\0';
+        if (player->token.value[0] != '\0') {
+            token_encode(&player->token);
+        }
     }
     response_clean(response);
+    return got_token;
 }
 
 /**
@@ -125,17 +141,23 @@ static void parse_links(Video *video, char *data) {
     }
 }
 
+// uses ttv.lol proxy to get the m3u8 links with no ads
 static void adblock_url(Client *client, Video *video, const char *user_login) {
     char url[URL_LEN];
-    fmt_string(url, "https://api.ttv.lol/playlist/%s.m3u8%%3Fallow_source=true?fast_bread=true", user_login);
+    fmt_string(url, URL_LEN, "https://api.ttv.lol/playlist/%s.m3u8%%3Fallow_source=true?fast_bread=true", user_login);
     client_set_header(client, "X-Donate-To", "https://ttv.lol/donate");
     Response *response = curl_request(client, url, curl_GET);
-    parse_links(video, response->memory);
+    if (!response->response) { // ttv.lol only returns JSON with a failed request
+        parse_links(video, response->memory);
+    }
     response_clean(response);
 }
 
 static void non_adblock_url(Client *client, TwitchStream *stream, Video *player, bool is_vod) {
-    get_video_token(client, player, stream);
+    bool got_token = get_video_token(client, player, stream);
+    if (!got_token) {
+        return;
+    }
     Response *response;
     const char *vod_or_channel = player->vod;
     char url[URL_LEN];
@@ -144,7 +166,7 @@ static void non_adblock_url(Client *client, TwitchStream *stream, Video *player,
         vod_or_channel = player->channel;
     }
 
-    int len = fmt_string(url,
+    int len = fmt_string(url, URL_LEN,
                          "https://usher.ttvnw.net/%s/"
                          "%s.m3u8?client_id=%s&token=%s&sig=%s&allow_source=true&allow_audio_only=true&fast_bread=true",
                          vod_or_channel, stream->user_login, "kimne78kx3ncx6brgo4mv6wki5h1ko",
@@ -156,29 +178,27 @@ static void non_adblock_url(Client *client, TwitchStream *stream, Video *player,
 
 // https://usher.ttvnw.net/${VOD|CHANNEL}/${user_id}.m3u8?client_id=${clientId}&token=${accessToken.value}&sig=${accessToken.signature}&allow_source=true&allow_audio_only=true
 // accessToken.value = json from request
-void get_stream_url(Client *client, TwitchStream *stream, Video *player, bool is_vod, bool use_adblock) {
+bool get_stream_url(Client *client, TwitchStream *stream, Video *player, bool is_vod, bool use_adblock) {
     Response *response;
+    bool got_url = false;
     client_clear_headers(client);
-    bool adblock_available = true;
 
     if (use_adblock) {
-        response = curl_request(client, "http://ttv.lol/api/ping", curl_GET);
-        if (response->res != CURLE_OK) {
-            adblock_available = false;
-        }
-        response_clean(response);
-        if (adblock_available) {
-            adblock_url(client, player, stream->user_login);
-        }
-    }
-    if (!use_adblock) {
+        adblock_url(client, player, stream->user_login);
+    } else if (!use_adblock) {
         non_adblock_url(client, stream, player, is_vod);
     }
+
+    if (player->resolution_list[0].link[0] != '\0') {
+        got_url = true;
+    }
+    return got_url;
 }
 
-Video init_video_player() {
-    Video player;
-    player.vod = "vod";
-    player.channel = "api/channel/hls";
-    return player;
+void init_video_player(Video *player) {
+    player->vod = "vod";
+    player->channel = "api/channel/hls";
+    player->token.value[0] = '\0';
+    player->token.signature[0] = '\0';
+    player->resolution_list[0].link[0] = '\0'; // NULL first byte for verification later
 }

@@ -103,10 +103,10 @@ int search_channels(Client *client, const char *keyword, SearchedChannel **chann
     int chan_index = items;
 
     if (iterator->pagination[0] == '\0') {
-        int len = fmt_string(url, "%s%s&query=%s", base_url, live_flag, keyword);
+        int len = fmt_string(url, URL_LEN, "%s%s&query=%s", base_url, live_flag, keyword);
         url[len] = '\0';
     } else {
-        int len = fmt_string(url, "%s%s&query=%s&after=%s", base_url, live_flag, keyword, iterator->pagination);
+        int len = fmt_string(url, URL_LEN, "%s%s&query=%s&after=%s", base_url, live_flag, keyword, iterator->pagination);
         url[len] = '\0';
     }
     int ret = __populate_searched_channel_array(client, url, channels, iterator, items);

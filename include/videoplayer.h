@@ -6,8 +6,8 @@
 #include "util.h"
 
 typedef struct VideoToken {
-    const char *value;
-    const char *signature;
+    char value[2048];
+    char signature[85];
     char encoded_value[2048];
 } VideoToken;
 
@@ -25,7 +25,7 @@ typedef struct Video {
     Resolution resolution_list[6];
 } Video;
 
-void get_stream_url(Client *client, TwitchStream *stream, Video *player, bool is_vod, bool use_adblock);
-Video init_video_player();
+bool get_stream_url(Client *client, TwitchStream *stream, Video *player, bool is_vod, bool use_adblock);
+void init_video_player(Video *player);
 
 #endif /* videoplayer_h */

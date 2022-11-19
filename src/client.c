@@ -20,10 +20,10 @@ void Client_init(Client *client, const char *access_token, const char *client_id
     char header[URL_LEN];
     client->headers = curl_slist_append(client->headers, "Content-Type: application/json");
     client->headers = curl_slist_append(client->headers, "Accept: application/json");
-    fmt_string(header, "Authorization: Bearer %s", client->token);
+    fmt_string(header, URL_LEN, "Authorization: Bearer %s", client->token);
     client->headers = curl_slist_append(client->headers, header);
 
-    fmt_string(header, "Client-Id: %s", client->client_id);
+    fmt_string(header, URL_LEN, "Client-Id: %s", client->client_id);
     client->headers = curl_slist_append(client->headers, header);
 }
 
@@ -46,7 +46,7 @@ bool validate_token(Client *client) {
 
 Response *curl_request(Client *client, const char *url, CurlMethod method) {
     Response *response = malloc(sizeof(Response));
-    response->memory = malloc(1);
+    response->memory = malloc(sizeof(char) * 1);
     response->size = 0;
     client->curl_handle = curl_easy_init();
     response->error[0] = 0;
@@ -86,7 +86,9 @@ Response *curl_request(Client *client, const char *url, CurlMethod method) {
     if (response->res == CURLE_OK) {
         curl_easy_getinfo(client->curl_handle, CURLINFO_RESPONSE_CODE, &response->response_code);
     }
-    response->response = json_tokener_parse(response->memory);
+    if (response->memory) {
+        response->response = json_tokener_parse(response->memory);
+    }
     curl_easy_cleanup(client->curl_handle);
     return response;
 }
@@ -125,16 +127,16 @@ void client_reset_headers(Client *client) {
     client_clear_headers(client);
     char header[100];
 
-    fmt_string(header, "Authorization: Bearer %s", client->token);
+    fmt_string(header, URL_LEN, "Authorization: Bearer %s", client->token);
     client->headers = curl_slist_append(client->headers, header);
 
-    fmt_string(header, "client-Id: %s", client->client_id);
+    fmt_string(header, URL_LEN, "client-Id: %s", client->client_id);
     client->headers = curl_slist_append(client->headers, header);
 }
 
 void client_set_header(Client *client, const char *key, const char *value) {
     char header[100];
-    fmt_string(header, "%s: %s", key, value);
+    fmt_string(header, URL_LEN, "%s: %s", key, value);
     client->headers = curl_slist_append(client->headers, header);
 }
 

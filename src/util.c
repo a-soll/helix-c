@@ -66,12 +66,12 @@ int abbreviate_number(char from[], char to[]) {
 }
 
 // formats string to provided array and returns length
-int fmt_string(char *to, const char *s, ...) {
+int fmt_string(char *to, size_t size, const char *s, ...) {
     va_list ap;
     int ret;
 
     va_start(ap, s);
-    ret = vsprintf(to, s, ap);
+    ret = vsnprintf(to, size, s, ap);
     va_end(ap);
     to[ret] = '\0';
 

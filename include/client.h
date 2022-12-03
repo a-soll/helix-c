@@ -37,13 +37,16 @@ typedef struct Client {
     struct curl_slist *headers;
     CURL *curl_handle;
     char post_data[999];
+    const char *oauth;
 } Client;
 
 typedef struct Paginator {
     char pagination[550];
 } Paginator;
 
-void Client_init(Client *client, const char *access_token, const char *client_id, const char *user_id, const char *user_login);
+// oauth can be an empty string ("")
+void Client_init(Client *client, const char *access_token, const char *client_id, const char *user_id,
+                 const char *user_login, const char *oauth);
 // verify that the current token is valid and returns user data
 bool validate_token(Client *client);
 void Client_deinit(Client *c);

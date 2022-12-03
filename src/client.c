@@ -8,7 +8,7 @@
 #include "client.h"
 #include "videoplayer.h"
 
-void Client_init(Client *client, const char *access_token, const char *client_id, const char *user_id, const char *user_login) {
+void Client_init(Client *client, const char *access_token, const char *client_id, const char *user_id, const char *user_login, const char *oauth) {
     client->base_url = "https://api.twitch.tv/helix";
     client->client_id = client_id;
     client->token = access_token;
@@ -16,6 +16,7 @@ void Client_init(Client *client, const char *access_token, const char *client_id
     client->user_login = user_login;
     client->headers = NULL;
     client->curl_handle = NULL;
+    client->oauth = oauth;
 
     char header[URL_LEN];
     client->headers = curl_slist_append(client->headers, "Content-Type: application/json");

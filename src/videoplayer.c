@@ -38,6 +38,9 @@ static bool get_video_token(Client *client, Video *player, TwitchStream *stream)
     struct curl_slist *headerlist = NULL;
     client_clear_headers(client);
     client->headers = curl_slist_append(client->headers, "Client-ID: kimne78kx3ncx6brgo4mv6wki5h1ko");
+    char oauth[URL_LEN];
+    fmt_string(oauth, URL_LEN, "OAuth %s", client->oauth);
+    client_set_header(client, "Authorization", oauth);
 
     int len = fmt_string(client->post_data, URL_LEN, "{\
     \"operationName\": \"PlaybackAccessToken\",\
@@ -52,7 +55,7 @@ static bool get_video_token(Client *client, Video *player, TwitchStream *stream)
         \"login\": \"%s\",\
         \"isVod\": false,\
         \"vodID\": \"%s\",\
-        \"playerType\": \"embed\"\
+        \"playerType\": \"site\"\
     }\
     }",
                          stream->user_login, stream->user_login);
@@ -165,7 +168,6 @@ static void non_adblock_url(Client *client, TwitchStream *stream, Video *player,
     if (!is_vod) {
         vod_or_channel = player->channel;
     }
-
     int len = fmt_string(url, URL_LEN,
                          "https://usher.ttvnw.net/%s/"
                          "%s.m3u8?client_id=%s&token=%s&sig=%s&allow_source=true&allow_audio_only=true&fast_bread=true",

@@ -9,14 +9,14 @@
 #include "videoplayer.h"
 
 void Client_init(Client *client, const char *access_token, const char *client_id, const char *user_id, const char *user_login, const char *oauth) {
-    client->base_url = "https://api.twitch.tv/helix";
-    client->client_id = client_id;
-    client->token = access_token;
-    client->user_id = user_id;
-    client->user_login = user_login;
+    memcpy(client->base_url, "https://api.twitch.tv/helix", strlen("https://api.twitch.tv/helix"));
+    memcpy(client->client_id, client_id, strlen(client_id));
+    memcpy(client->token, access_token, strlen(access_token));
+    memcpy(client->user_id, user_id, strlen(user_id));
+    memcpy(client->user_login, user_login, strlen(user_login));
+    memcpy(client->oauth, oauth, strlen(oauth));
     client->headers = NULL;
     client->curl_handle = NULL;
-    client->oauth = oauth;
 
     char header[URL_LEN];
     client->headers = curl_slist_append(client->headers, "Content-Type: application/json");
@@ -37,8 +37,8 @@ bool validate_token(Client *client) {
     const char *url = "https://id.twitch.tv/oauth2/validate";
     Response *response = curl_request(client, url, curl_GET);
     if (response->response_code == 200) {
-        client->user_login = get_key(response->response, "login");
-        client->user_id = get_key(response->response, "user_id");
+        memcpy(client->user_login, get_key(response->response, "login"), USER_LOGIN_LEN);
+        memcpy(client->user_id, get_key(response->response, "user_id"), ID_LEN);
         ret = true;
     }
     response_clean(response);

@@ -2,6 +2,7 @@
 #define CLIENT_H
 
 #include "util.h"
+#include "defs.h"
 #include <curl/curl.h>
 #include <stdbool.h>
 
@@ -27,17 +28,17 @@ typedef struct Response {
 } Response;
 
 typedef struct Client {
-    const char *user_id;
-    const char *user_login;
-    const char *base_url;
-    const char *client_id;
-    const char *client_secret;
-    const char *token;
+    char user_id[ID_LEN];
+    char user_login[USER_LOGIN_LEN];
+    char base_url[URL_LEN];
+    char client_id[55];
+    char client_secret[55];
+    char token[55];
     json_object *fields;
     struct curl_slist *headers;
     CURL *curl_handle;
     char post_data[999];
-    const char *oauth;
+    char oauth[55];
 } Client;
 
 typedef struct Paginator {

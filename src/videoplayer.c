@@ -37,7 +37,9 @@ static bool get_video_token(Client *client, Video *player, TwitchStream *stream)
     const char *url = "https://gql.twitch.tv/gql";
     struct curl_slist *headerlist = NULL;
     client_clear_headers(client);
-    client->headers = curl_slist_append(client->headers, "Client-ID: kimne78kx3ncx6brgo4mv6wki5h1ko");
+    // client->headers = curl_slist_append(client->headers, "Client-Id: kimne78kx3ncx6brgo4mv6wki5h1ko");
+    // client->headers = curl_slist_append(client->headers, "content-type: Application/Json");
+    // client->headers = curl_slist_append(client->headers, "accept: application/json");
     char oauth[URL_LEN];
     fmt_string(oauth, URL_LEN, "OAuth %s", client->oauth);
     client_set_header(client, "Authorization", oauth);

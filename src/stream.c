@@ -58,9 +58,9 @@ void get_stream_by_user_login(Client *client, TwitchStream *stream, const char *
     char url[URL_LEN];
     int len = fmt_string(url, URL_LEN, "%s?user_login=%s", base_url, user_login);
     url[len] = '\0';
+    client_reset_headers(client);
     Response *response = curl_request(client, url, curl_GET);
     get_json_array(response, "data");
-
     if (response->data_len > 0) {
         json_object *data_array_object;
         data_array_object = json_object_array_get_idx(response->data, 0);

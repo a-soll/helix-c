@@ -8,7 +8,8 @@
 #include "client.h"
 #include "videoplayer.h"
 
-void Client_init(Client *client, const char *access_token, const char *client_id, const char *user_id, const char *user_login, const char *oauth) {
+void Client_init(Client *client, const char *access_token, const char *client_id, const char *user_id,
+                 const char *user_login, const char *oauth) {
     memcpy(client->base_url, "https://api.twitch.tv/helix", strlen("https://api.twitch.tv/helix"));
     memcpy(client->client_id, client_id, strlen(client_id));
     memcpy(client->token, access_token, strlen(access_token));
@@ -17,15 +18,8 @@ void Client_init(Client *client, const char *access_token, const char *client_id
     memcpy(client->oauth, oauth, strlen(oauth));
     client->headers = NULL;
     client->curl_handle = NULL;
-
     char header[URL_LEN];
-    client->headers = curl_slist_append(client->headers, "Content-Type: application/json");
-    client->headers = curl_slist_append(client->headers, "Accept: application/json");
-    fmt_string(header, URL_LEN, "Authorization: Bearer %s", client->token);
-    client->headers = curl_slist_append(client->headers, header);
-
-    fmt_string(header, URL_LEN, "Client-Id: %s", client->client_id);
-    client->headers = curl_slist_append(client->headers, header);
+    client_reset_headers(client);
 }
 
 void Client_deinit(Client *c) {
@@ -37,8 +31,10 @@ bool validate_token(Client *client) {
     const char *url = "https://id.twitch.tv/oauth2/validate";
     Response *response = curl_request(client, url, curl_GET);
     if (response->response_code == 200) {
-        memcpy(client->user_login, get_key(response->response, "login"), USER_LOGIN_LEN);
-        memcpy(client->user_id, get_key(response->response, "user_id"), ID_LEN);
+        const char *login = get_key(response->response, "login");
+        memcpy(client->user_login, login, strlen(login));
+        const char *id = get_key(response->response, "user_id");
+        memcpy(client->user_id, id, strlen(id));
         ret = true;
     }
     response_clean(response);
@@ -126,17 +122,23 @@ size_t WriteMemoryCallback(void *contents, size_t size, size_t nmemb, void *user
 
 void client_reset_headers(Client *client) {
     client_clear_headers(client);
-    char header[100];
+    char header[URL_LEN];
+    size_t len;
 
-    fmt_string(header, URL_LEN, "Authorization: Bearer %s", client->token);
+    client->headers = curl_slist_append(client->headers, "Content-Type: application/json");
+    client->headers = curl_slist_append(client->headers, "Accept: application/json");
+
+    len = strlen("authorization: bearer ") + strlen(client->token) + 1;
+    fmt_string(header, len, "Authorization: Bearer %s", client->token);
     client->headers = curl_slist_append(client->headers, header);
 
-    fmt_string(header, URL_LEN, "client-Id: %s", client->client_id);
+    len = strlen("client-id: ") + strlen(client->client_id) + 1;
+    fmt_string(header, len, "Client-Id: %s", client->client_id);
     client->headers = curl_slist_append(client->headers, header);
 }
 
 void client_set_header(Client *client, const char *key, const char *value) {
-    char header[100];
+    char header[URL_LEN];
     fmt_string(header, URL_LEN, "%s: %s", key, value);
     client->headers = curl_slist_append(client->headers, header);
 }

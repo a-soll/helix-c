@@ -74,7 +74,6 @@ int fmt_string(char *to, size_t size, const char *s, ...) {
     ret = vsnprintf(to, size, s, ap);
     va_end(ap);
     to[ret] = '\0';
-
     return ret;
 }
 

@@ -1,5 +1,6 @@
 #include "game.h"
 #include "stream.h"
+#include <cstr/cstr.h>
 
 // example box art url: https://static-cdn.jtvnw.net/ttv-boxart/1678360288_IGDB-{width}x{height}.jpg
 // placeholder https://static-cdn.jtvnw.net/ttv-static/404_boxart.jpg
@@ -8,26 +9,23 @@ void init_game(Game *game, json_object *json) {
     const char *id = get_key(json, "id");
     strcpy(game->name, name);
     strcpy(game->id, id);
-    const char *box_url = get_key(json, "box_art_url");
-    replace_substr(game->box_art_url, (char *)box_url, "{width}x{height}", "188x251");
+    cstr box_url = cstrInit(get_key(json, "box_art_url"));
+    cstrReplace(box_url, "{width}x{height}", "188x251");
+    strcpy(game->box_art_url, box_url->string);
+    cstrDealloc(box_url);
 }
 
 int get_top_games(Client *client, Game **games, Paginator *iterator, int items) {
     Game *g;
     int ret = 0;
     int game_index = items;
-    const char *base_url = "https://api.twitch.tv/helix/games/top?first=100";
-    int base_len = strlen(base_url);
-    char url[2048];
+    cstr url = client->__url;
+    cstrUpdateString(url, "https://api.twitch.tv/helix/games/top?first=100");
 
-    if (iterator->pagination[0] == '\0') {
-        memccpy(url, base_url, '\0', strlen(base_url));
-        url[base_len] = '\0';
-    } else {
-        int len = fmt_string(url, URL_LEN, "%s&after=%s", base_url, iterator->pagination);
-        url[len] = '\0';
+    if (iterator->pagination[0] != '\0') {
+        cstrCatFmt(url, "&after=%s", iterator->pagination);
     }
-    Response *response = curl_request(client, url, curl_GET);
+    Response *response = curl_request(client, url->string, curl_GET);
     get_json_array(response, "data");
     if (*games == NULL) {
         g = malloc(sizeof(Game) * response->data_len);
@@ -51,17 +49,26 @@ int get_top_games(Client *client, Game **games, Paginator *iterator, int items) 
 
 int get_game_streams(Client *client, TwitchStream **streams, Game *from, Paginator *iterator, int items) {
     Channel *c;
-    char *base_url = "https://api.twitch.tv/helix/streams?first=100";
-    int base_len = strlen(base_url);
-    char url[URL_LEN];
+    cstr url = client->__url;
+    cstrUpdateString(url, "https://api.twitch.tv/helix/streams?first=100");
 
     if (iterator->pagination[0] == '\0') {
-        int len = fmt_string(url, URL_LEN, "%s&game_id=%s", base_url, from->id);
-        url[len] = '\0';
+        cstrCatFmt(url, "&game_id=%s", from->id);
     } else {
-        int len = fmt_string(url, URL_LEN, "%s&after=%s&game_id=%s", base_url, iterator->pagination, from->id);
-        url[len] = '\0';
+        cstrCatFmt(url, "&after=%s&game_id=%s", iterator->pagination, from->id);
     }
-    int ret = __populate_stream_array(client, url, streams, iterator, items);
+    int ret = __populate_stream_array(client, url->string, streams, iterator, items);
     return ret;
+}
+
+void get_game_by_name(Client *client, char *name, Game *game) {
+    cstr url = client->__url;
+    cstrUpdateString(url, "https://api.twitch.tv/helix/games");
+    cstrCatFmt(url, "?name=%s", name);
+    cstrReplace(url, " ", "%20");
+    Response *response = curl_request(client, url->string, curl_GET);
+    get_json_array(response, "data");
+    json_object *json = json_object_array_get_idx(response->data, 0);
+    init_game(game, json);
+    response_clean(response);
 }

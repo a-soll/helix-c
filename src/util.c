@@ -16,7 +16,7 @@ const char *get_key(json_object *from, const char *key) {
     if (ret) {
         return json_object_get_string(val);
     } else {
-        return NULL;
+        return "\0";
     }
 }
 
@@ -41,7 +41,7 @@ int replace_substr(char *dst, char *from, char *repl, char *with) {
 // abbreviate numbers in the thousands
 // ex: 40382 -> 40.3K
 int abbreviate_number(char from[], char to[]) {
-    int i;
+    int i = 0;
     char digit;
 
     int size = strlen(from);

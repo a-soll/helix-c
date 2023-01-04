@@ -1,8 +1,9 @@
 #ifndef CLIENT_H
 #define CLIENT_H
 
-#include "util.h"
 #include "defs.h"
+#include "util.h"
+#include <cstr/cstr.h>
 #include <curl/curl.h>
 #include <stdbool.h>
 
@@ -30,7 +31,6 @@ typedef struct Response {
 typedef struct Client {
     char user_id[ID_LEN];
     char user_login[USER_LOGIN_LEN];
-    char base_url[URL_LEN];
     char client_id[55];
     char client_secret[55];
     char token[55];
@@ -39,6 +39,9 @@ typedef struct Client {
     CURL *curl_handle;
     char post_data[999];
     char oauth[55];
+
+    // reusable URL used by backend functions to append/format parameters
+    cstr __url;
 } Client;
 
 typedef struct Paginator {

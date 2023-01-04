@@ -9,6 +9,7 @@ include(GNUInstallDirs)
 
 add_subdirectory(lib/json-c)
 add_subdirectory(lib/c-hashmap)
+add_subdirectory(lib/cstr)
 
 add_library(helix
     src/channel.c
@@ -22,7 +23,7 @@ add_library(helix
 
 configure_file(helix.pc.in helix.pc @ONLY)
 
-target_link_libraries(helix json-c curl c-hashmap)
+target_link_libraries(helix json-c curl c-hashmap cstr)
 
 set_target_properties(helix PROPERTIES VERSION ${PROJECT_VERSION})
 set_target_properties(helix PROPERTIES PUBLIC_HEADER helix.h)
@@ -43,6 +44,8 @@ target_include_directories(helix PRIVATE
 
 install(TARGETS helix LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/helix PRIVATE_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/helix/include)
 
-
 install(FILES ${CMAKE_BINARY_DIR}/lib/json-c/json.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/helix/lib/json-c)
+
+install(FILES lib/cstr/cstr.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/helix/lib/cstr)
+
 install(FILES ${CMAKE_SOURCE_DIR}/lib/c-hashmap/bucket.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/helix/lib/c-hashmap)

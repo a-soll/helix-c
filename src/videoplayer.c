@@ -6,6 +6,7 @@
 //
 
 #include "videoplayer.h"
+#include <cstr/cstr.h>
 #include <string.h>
 
 // convert the token to an html string by replacing " with %22
@@ -83,6 +84,7 @@ static bool get_video_token(Client *client, Video *player, TwitchStream *stream)
             token_encode(&player->token);
         }
     }
+    client_reset_headers(client);
     response_clean(response);
     return got_token;
 }
@@ -148,10 +150,11 @@ static void parse_links(Video *video, char *data) {
 
 // uses ttv.lol proxy to get the m3u8 links with no ads
 static void adblock_url(Client *client, Video *video, const char *user_login) {
-    char url[URL_LEN];
-    fmt_string(url, URL_LEN, "https://api.ttv.lol/playlist/%s.m3u8%%3Fallow_source=true?fast_bread=true", user_login);
+    cstr url = client->__url;
+    cstrUpdateString(url, "https://api.ttv.lol/playlist/");
+    cstrCatFmt(url, "%s.m3u8%%3Fallow_source=true?fast_bread=true", user_login);
     client_set_header(client, "X-Donate-To", "https://ttv.lol/donate");
-    Response *response = curl_request(client, url, curl_GET);
+    Response *response = curl_request(client, url->string, curl_GET);
     if (!response->response) { // ttv.lol only returns JSON with a failed request
         parse_links(video, response->memory);
     }
@@ -165,17 +168,16 @@ static void non_adblock_url(Client *client, TwitchStream *stream, Video *player,
     }
     Response *response;
     const char *vod_or_channel = player->vod;
-    char url[URL_LEN];
+    cstr url = client->__url;
+    cstrUpdateString(url, "https://usher.ttvnw.net/");
 
     if (!is_vod) {
         vod_or_channel = player->channel;
     }
-    int len = fmt_string(url, URL_LEN,
-                         "https://usher.ttvnw.net/%s/"
-                         "%s.m3u8?client_id=%s&token=%s&sig=%s&allow_source=true&allow_audio_only=true&fast_bread=true",
-                         vod_or_channel, stream->user_login, "kimne78kx3ncx6brgo4mv6wki5h1ko",
-                         player->token.encoded_value, player->token.signature);
-    response = curl_request(client, url, curl_GET);
+    cstrCatFmt(url, "%s/%s.m3u8?client_id=%s&token=%s&sig=%s&allow_source=true&allow_audio_only=true&fast_bread=true",
+               vod_or_channel, stream->user_login, "kimne78kx3ncx6brgo4mv6wki5h1ko", player->token.encoded_value,
+               player->token.signature);
+    response = curl_request(client, url->string, curl_GET);
     parse_links(player, response->memory);
     response_clean(response);
 }
@@ -196,6 +198,7 @@ bool get_stream_url(Client *client, TwitchStream *stream, Video *player, bool is
     if (player->resolution_list[0].link[0] != '\0') {
         got_url = true;
     }
+    client_reset_headers(client);
     return got_url;
 }
 

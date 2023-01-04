@@ -38,7 +38,8 @@ int __populate_channel_array(Client *client, const char *url, Channel **channels
 }
 
 void __searchedchannel_init_from_json(SearchedChannel *channel, json_object *json) {
-    memccpy(channel->broadcaster_language, get_key(json, "broadcaster_language"), '\0', sizeof(channel->broadcaster_language));
+    memccpy(channel->broadcaster_language, get_key(json, "broadcaster_language"), '\0',
+            sizeof(channel->broadcaster_language));
     memccpy(channel->broadcaster_login, get_key(json, "broadcaster_login"), '\0', sizeof(channel->broadcaster_login));
     memccpy(channel->game_id, get_key(json, "game_id"), '\0', sizeof(channel->game_id));
     memccpy(channel->game_name, get_key(json, "game_name"), '\0', sizeof(channel->game_name));
@@ -49,7 +50,8 @@ void __searchedchannel_init_from_json(SearchedChannel *channel, json_object *jso
     channel->is_live = strcmp("true", get_key(json, "is_live")) == 0 ? true : false;
 }
 
-int __populate_searched_channel_array(Client *client, const char *url, SearchedChannel **channels, Paginator *iterator, int items) {
+int __populate_searched_channel_array(Client *client, const char *url, SearchedChannel **channels, Paginator *iterator,
+                                      int items) {
     int chan_index = items;
     Response *response = curl_request(client, url, curl_GET);
     SearchedChannel *c;
@@ -93,22 +95,20 @@ void get_channel_user(Client *client, User *user, Channel *from) {
     get_user_by_login(client, user, from->broadcaster_login);
 }
 
-int search_channels(Client *client, const char *keyword, SearchedChannel **channels, Paginator *iterator, int items, bool live_only) {
+int search_channels(Client *client, const char *keyword, SearchedChannel **channels, Paginator *iterator, int items,
+                    bool live_only) {
     SearchedChannel *c;
     const char *live_flag;
     live_flag = (live_only == true) ? "true" : "false";
-    char *base_url = "https://api.twitch.tv/helix/search/channels?first=100&live_only=";
-    int base_len = strlen(base_url);
-    char url[URL_LEN];
+    cstr url = client->__url;
+    cstrUpdateString(url, "https://api.twitch.tv/helix/search/channels?first=100&live_only=");
     int chan_index = items;
 
     if (iterator->pagination[0] == '\0') {
-        int len = fmt_string(url, URL_LEN, "%s%s&query=%s", base_url, live_flag, keyword);
-        url[len] = '\0';
+        cstrCatFmt(url, "%s&query=%s", live_flag, keyword);
     } else {
-        int len = fmt_string(url, URL_LEN, "%s%s&query=%s&after=%s", base_url, live_flag, keyword, iterator->pagination);
-        url[len] = '\0';
+        cstrCatFmt(url, "%s&query=%s&after=%s", live_flag, keyword, iterator->pagination);
     }
-    int ret = __populate_searched_channel_array(client, url, channels, iterator, items);
+    int ret = __populate_searched_channel_array(client, url->string, channels, iterator, items);
     return ret;
 }

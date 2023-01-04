@@ -10,7 +10,6 @@
 
 void Client_init(Client *client, const char *access_token, const char *client_id, const char *user_id,
                  const char *user_login, const char *oauth) {
-    strcpy(client->base_url, "https://api.twitch.tv/helix");
     strcpy(client->client_id, client_id);
     strcpy(client->token, access_token);
     strcpy(client->user_id, user_id);
@@ -19,6 +18,7 @@ void Client_init(Client *client, const char *access_token, const char *client_id
     client->headers = NULL;
     client->curl_handle = NULL;
     char header[URL_LEN];
+    client->__url = cstrInit("https://api.twitch.tv/helix");
     client_reset_headers(client);
 }
 
@@ -102,6 +102,7 @@ void client_clean_up(void *client) {
     if (mem->curl_handle != NULL) {
         curl_easy_cleanup(mem->curl_handle);
     }
+    cstrDealloc(mem->__url);
 }
 
 size_t WriteMemoryCallback(void *contents, size_t size, size_t nmemb, void *userp) {

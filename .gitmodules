@@ -4,3 +4,6 @@
 [submodule "lib/c-hashmap"]
 	path = lib/c-hashmap
 	url = https://github.com/a-soll/c-hashmap.git
+[submodule "lib/cstr"]
+	path = lib/cstr
+	url = https://github.com/a-soll/cstr.git

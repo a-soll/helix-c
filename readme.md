@@ -14,6 +14,7 @@ This is a C interface to Twitch's API.
 # Dependencies
 - [json-c](https://github.com/json-c/json-c) for json handling
 - [libcurl](https://curl.se/libcurl/) for requests (should be already available on Mac and Linux)
+- [cstr](https://github.com/a-soll/cstr) for string manipulation
 
 # How to use
 To use this project, simply `#include <helix/helix.h>` and link with `-lhelix`, `-ljson-c`, and `-lcurl`

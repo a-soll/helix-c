@@ -17,4 +17,4 @@ This is a C interface to Twitch's API.
 - [cstr](https://github.com/a-soll/cstr) for string manipulation
 
 # How to use
-To use this project, simply `#include <helix/helix.h>` and link with `-lhelix`, `-ljson-c`, and `-lcurl`
+To use this project, simply `#include <helix/helix.h>` and link with `-lhelix`, `-lcstr`, -ljson-c`, and `-lcurl`

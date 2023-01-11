@@ -55,7 +55,7 @@ void Client_init(Client *client, const char *access_token, const char *client_id
 bool validate_token(Client *client);
 void Client_deinit(Client *c);
 Response *curl_request(Client *client, const char *url, CurlMethod method);
-void client_clean_up(void *client);
+void client_clean_up(Client *client);
 size_t WriteMemoryCallback(void *contents, size_t size, size_t nmemb, void *userp);
 void client_reset_headers(Client *client);
 void client_clear_headers(Client *client);

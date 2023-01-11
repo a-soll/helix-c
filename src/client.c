@@ -97,12 +97,9 @@ void response_clean(void *response) {
     free(res);
 }
 
-void client_clean_up(void *client) {
-    struct Client *mem = (struct Client *)client;
-    if (mem->curl_handle != NULL) {
-        curl_easy_cleanup(mem->curl_handle);
-    }
-    cstrDealloc(mem->__url);
+void client_clean_up(Client *client) {
+    client_clear_headers(client);
+    cstrDealloc(client->__url);
 }
 
 size_t WriteMemoryCallback(void *contents, size_t size, size_t nmemb, void *userp) {

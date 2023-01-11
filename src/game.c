@@ -7,11 +7,11 @@
 void init_game(Game *game, json_object *json) {
     const char *name = get_key(json, "name");
     const char *id = get_key(json, "id");
-    strcpy(game->name, name);
-    strcpy(game->id, id);
+    memcpy(game->name, name, strlen(name) + 1);
+    memcpy(game->id, id, strlen(id) + 1);
     cstr box_url = cstrInit(get_key(json, "box_art_url"));
     cstrReplace(box_url, "{width}x{height}", "188x251");
-    strcpy(game->box_art_url, box_url->string);
+    memcpy(game->box_art_url, box_url->string, box_url->len + 1);
     cstrDealloc(box_url);
 }
 

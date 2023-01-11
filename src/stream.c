@@ -33,32 +33,60 @@ int __populate_stream_array(Client *client, const char *url, TwitchStream **stre
 }
 
 void __stream_init_from_json(TwitchStream *stream, json_object *json) {
-    strcpy(stream->game_id, get_key(json, "game_id"));
-    strcpy(stream->game_name, get_key(json, "game_name"));
-    strcpy(stream->id, get_key(json, "id"));
+    cstr val;
+
+    val = cstrInit(get_key(json, "game_id"));
+    memcpy(stream->game_id, val->string, val->len + 1);
+
+    cstrUpdateString(val, get_key(json, "game_name"));
+    memcpy(stream->game_name, val->string, val->len + 1);
+
+    cstrUpdateString(val, get_key(json, "id"));
+    memcpy(stream->id, val->string, val->len + 1);
+
     if (strcmp(get_key(json, "is_mature"), "true") == 0) {
         stream->is_mature = true;
     } else {
         stream->is_mature = false;
     }
-    strcpy(stream->language, get_key(json, "language"));
-    strcpy(stream->started_at, get_key(json, "started_at"));
-    strcpy(stream->title, get_key(json, "title"));
-    strcpy(stream->type, get_key(json, "type"));
-    strcpy(stream->user_id, get_key(json, "user_id"));
-    strcpy(stream->user_login, get_key(json, "user_login"));
-    strcpy(stream->user_name, get_key(json, "user_name"));
+
+    cstrUpdateString(val, get_key(json, "language"));
+    memcpy(stream->language, val->string, val->len + 1);
+
+    cstrUpdateString(val, get_key(json, "started_at"));
+
+    memcpy(stream->started_at, val->string, val->len + 1);
+
+    cstrUpdateString(val, get_key(json, "title"));
+    memcpy(stream->title, val->string, val->len + 1);
+
+    cstrUpdateString(val, get_key(json, "type"));
+    memcpy(stream->type, val->string, val->len + 1);
+
+    cstrUpdateString(val, get_key(json, "user_id"));
+    memcpy(stream->user_id, val->string, val->len + 1);
+
+    cstrUpdateString(val, get_key(json, "user_login"));
+    memcpy(stream->user_login, val->string, val->len + 1);
+
+    cstrUpdateString(val, get_key(json, "user_name"));
+    memcpy(stream->user_name, val->string, val->len + 1);
+
     stream->viewer_count = atoi(get_key(json, "viewer_count"));
-    strcpy(stream->type, get_key(json, "type"));
+
+    cstrUpdateString(val, get_key(json, "type"));
+    memcpy(stream->type, val->string, val->len + 1);
+
     // need to replace width/height with default twitch values
-    cstr thumb = cstrInit(get_key(json, "thumbnail_url"));
-    cstrReplace(thumb, "{width}x{height}", "344x194");
-    strcpy(stream->thumbnail_url, thumb->string);
-    cstrDealloc(thumb);
+    cstrUpdateString(val, get_key(json, "thumbnail_url"));
+    cstrReplace(val, "{width}x{height}", "344x194");
+    memcpy(stream->thumbnail_url, val->string, val->len + 1);
+    cstrDealloc(val);
 }
 
 void get_stream_by_user_login(Client *client, TwitchStream *stream, const char *user_login) {
-    cstr url = cstrInit(base_url);
+    cstr url = client->__url;
+    cstrUpdateString(url, base_url);
     cstrCatFmt(url, "?user_login=%s", user_login);
     client_reset_headers(client);
     Response *response = curl_request(client, url->string, curl_GET);

@@ -30,7 +30,6 @@ if(NOT JSON)
     add_subdirectory(lib/json-c)
     define_property(TARGET PROPERTY LIB_HEADER BRIEF_DOCS "json-c include" FULL_DOCS "json-c include")
     set_property(TARGET PROPERTY LIB_HEADER "${CMAKE_SOURCE_DIR}/lib/json-c/json.h")
-    install(FILES ${CMAKE_BINARY_DIR}/lib/json-c/json.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/helix/lib/json-c)
 endif()
 
 find_library(CSTR cstr)
@@ -53,6 +52,7 @@ target_include_directories(helix PRIVATE
     lib
 )
 
-install(TARGETS helix LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/helix PRIVATE_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/helix/include)
-
-install(FILES ${CMAKE_SOURCE_DIR}/lib/c-hashmap/bucket.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/helix/lib/c-hashmap)
+install(TARGETS helix LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/helix
+    PRIVATE_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/helix/include
+)

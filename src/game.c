@@ -15,36 +15,32 @@ void init_game(Game *game, json_object *json) {
     cstrDealloc(box_url);
 }
 
-int get_top_games(Client *client, Game **games, Paginator *iterator, int items) {
-    Game *g;
-    int ret = 0;
-    int game_index = items;
+void get_top_games(Client *client, GameList *games) {
+    int game_index = games->len;
     cstr url = client->__url;
     cstrUpdateString(url, "https://api.twitch.tv/helix/games/top?first=100");
 
-    if (iterator->pagination[0] != '\0') {
-        cstrCatFmt(url, "&after=%s", iterator->pagination);
+    if (games->iterator.pagination[0] != '\0') {
+        cstrCatFmt(url, "&after=%s", games->iterator.pagination);
     }
     Response *response = curl_request(client, url->string, curl_GET);
     get_json_array(response, "data");
-    if (*games == NULL) {
-        g = malloc(sizeof(Game) * response->data_len);
+    if (!games->games) {
+        games->games = malloc(sizeof(Game) * response->data_len);
     } else {
-        g = realloc(*games, sizeof(Game) * (items + response->data_len));
+        games->games = realloc(games->games, sizeof(Game) * (games->len + response->data_len));
     }
-    ret = response->data_len;
     for (int i = 0; i < response->data_len; i++) {
         Game game;
         json_object *data_array_object;
         data_array_object = json_object_array_get_idx(response->data, i);
         init_game(&game, data_array_object);
-        g[game_index] = game;
+        games->games[game_index] = game;
         game_index++;
     }
-    paginator_set(iterator->pagination, response->response);
-    *games = g;
+    games->len += response->data_len;
+    paginator_set(games->iterator.pagination, response->response);
     response_clean(response);
-    return ret;
 }
 
 int get_game_streams(Client *client, TwitchStream **streams, Game *from, Paginator *iterator, int items) {
@@ -69,7 +65,9 @@ void GameList_init(GameList *games, const char *query) {
 }
 
 void GameList_deinit(GameList *games) {
-    free(games->games);
+    if (games->games) {
+        free(games->games);
+    }
 }
 
 void get_game_by_name(Client *client, char *name, Game *game) {

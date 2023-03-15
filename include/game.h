@@ -14,7 +14,7 @@ typedef struct Game {
 typedef struct GameList {
     Paginator iterator;
     Game *games;
-    const char *query;
+    char *query;
     int len;
 } GameList;
 

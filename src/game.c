@@ -70,6 +70,7 @@ void GameList_deinit(GameList *games) {
     if (games->games) {
         free(games->games);
     }
+    free(games->query);
 }
 
 void get_game_by_name(Client *client, const char *name, Game *game) {

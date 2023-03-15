@@ -61,7 +61,9 @@ void GameList_init(GameList *games, const char *query) {
     games->iterator = paginator_init();
     games->games = NULL;
     games->len = 0;
-    games->query = query;
+    if (query) {
+        games->query = strdup(query);
+    }
 }
 
 void GameList_deinit(GameList *games) {
@@ -70,7 +72,7 @@ void GameList_deinit(GameList *games) {
     }
 }
 
-void get_game_by_name(Client *client, char *name, Game *game) {
+void get_game_by_name(Client *client, const char *name, Game *game) {
     cstr url = client->__url;
     cstrUpdateString(url, "https://api.twitch.tv/helix/games");
     cstrCatFmt(url, "?name=%s", name);

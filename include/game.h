@@ -20,7 +20,7 @@ typedef struct GameList {
 
 void get_top_games(Client *client, GameList *games);
 int get_game_streams(Client *client, TwitchStream **streams, Game *from, Paginator *iterator, int items);
-void get_game_by_name(Client *client, char *name, Game *game);
+void get_game_by_name(Client *client, const char *name, Game *game);
 void search_games(Client *client, GameList *games);
 /**
  * init GameList. query can be NULL (for cases like getting top games).
